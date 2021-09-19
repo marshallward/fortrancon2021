@@ -1,30 +1,639 @@
-==================
-Presentation Title
-==================
+===============================================================
+Bit-reproducible methods for dimensional and rotational testing
+===============================================================
 
-:author: Mister Robot
+:authors:
+   - Robert Hallberg
+   - **Marshall Ward**
+   - Alistair Adcroft
 :description: A one-line summary of the presentation.
-:date: 1997-10-01
-:url: https://marshallward.org/sample.html
+:date: 2021-09-23
+:url: https://marshallward.org/fortrancon2021.html
 :preface:
    Introductory comments, written to slide notes
 
 
-Slide Title
+Motivation
+==========
+
+* Forecasting / Climate
+
+* Reproducibility
+   - Chaotic dynamics: 1 ULP => O(1) changes
+   - Replication of forecasts
+   - Automated testing without doofy tolerances
+
+* MOM6 dynamcs
+   - Bryan-Cox foundations
+   - Layered Dynamics
+   - ALE / Lagrangian remapping
+
+* MOM6 test suite
+   - Verification by checksums
+      - Dynamics
+      - Diagnostics
+
+
+Global Modeling
+===============
+
+.. image:: media/mom6_relvort.mp4
+   :width: 85%
+
+.. notes::
+
+   GFDL CM4 model:
+      - coupled to MOM6
+
+   Phenomena on this model:
+      - Equatorial Waves
+         - Large, very fast
+         - shelf-reflecting => ENSO
+      - Southern Ocean
+         - Slower, turbulent eddies
+         - Strong topographic driven
+      - Western Boundary Currents
+         - Gulf Stream (Eastern US), Kuroshio (Japan)
+         - Agulhas (Africa) -> eddies
+         - Benguela (S.America), EAC (Australia)
+      - Tropical storms (from atm) 
+
+   Things you cannot see
+      - fast very large scale tidal waves
+      - Meridional overturning circulation
+
+
+Regional Modeling
+=================
+
+.. image:: media/mom6_regional.mp4
+   :width: 90%
+
+.. notes::
+
+   Say something interesting...
+
+   - Fisheries
+   - Refineries (Gulf of Mexico)
+   - ...?
+
+
+Examples of MOM6
+================
+
+* Idealized process studies
+* GFDL: ESM4/CM4 coupled model (adcroft et al 2019, JAMES)
+* Ice-sheet ocean interactions
+* NCAR CESM3
+* Australia COSIMA (soon)
+* Fishery management
+* NOAA/NCEP CFS-v3 coupled seasonal
+* US Navy HYCOM successor
+
+
+Ocean Dynamics
+==============
+
+.. math::
+
+   \frac{D\mathbf{u}}{Dt} + f \hat{z} \times \mathbf{u} &= -\nabla p + \mathcal{F} \\
+   p_z &= -g \rho \\
+   \frac{D\phi}{Dt} &= 0 \\
+   \nabla \cdot \mathbf{u} + w_z &= 0 \\
+   \rho &= f(p, T, S, ...)
+
+
+Layered Dynamics
+================
+
+.. image:: img/mom6_vcoord.png
+   :width: 75%
+
+
+Solution verification
+=====================
+
+``ocean.stats``
+
+.. code:: bash
+
+  Step   Days   Energy/Mass [m2 s-2]     Mean Sea Level [m]   ...
+
+     0   0.00   7.2161166068132286E-27   1.8190E-12           ...
+    12   0.50   2.7781004671136538E-04   1.1369E-12           ...
+    24   1.00   2.7734897826598717E-04   1.8190E-12           ...
+
+Based on global metrics (energy, mass, etc)
+
+
+Diagnostic verification
+=======================
+
+``chksum_diag``::
+
+     u-point: ocean_model-u
+       min  = -6.7187595818683776E-03  max  =  3.3480219779204019E-02
+       mean =  1.1239682303793666E-04  bits = 21851
+     v-point: ocean_model-v
+       min  = -8.3469699425156359E-03  max  =  6.8420831486068704E-03 
+       mean =  1.2076392816784489E-03  bits = 18606
+     h-point: ocean_model-h
+       min  =  9.9999999999999915E-04  max  =  5.6265092225099863E+02
+       mean =  3.6490088139048595E+02  bits = 18673 
+
+Min, max, mean, bit count for every diagnostic
+
+
+Verification Testing
+====================
+
+.. image:: img/mom_verify.svg
+   :width: 80%
+
+.. notes::
+
+   - Also called "invariance tests"
+
+   - Configured for different compilers, environments
+
+   - Platform-independent:
+      - no reference answers
+      - identical comparisons
+
+   - "Regression" test for reference code (e.g. ``main``)
+
+
+Validation Testing
+==================
+
+.. image:: img/mom_validate.svg
+
+.. notes::
+
+   - Specified for *our* machine
+
+   - *Does* have reference answers
+
+   - Very strict testing
+
+
+External Testing
+================
+
+.. image:: img/gitrepos.svg
+   :width: 50%
+
+.. notes::
+
+   TODO: Need to add NASA...
+
+
+Floating Point Review
+=====================
+
+.. image:: img/ieee_float_fmt.svg
+   :target: https://commons.wikimedia.org/wiki/File:Float_example.svg
+
+.. math::
+
+   \phi \equiv (-1)^{\color{yellow}s} \times 2^{\color{aquamarine}M}
+      \times (1 + {\color{pink}\alpha})
+
+* Smallest fractional diff: :math:`2^{-52} \approx 2.2 \times 10^{-16}`
+
+* 17 digits to uniquely specify a result
+
+.. notes::
+
+   Things we ignore:
+   - Inf and NaN
+   - Denormals
+
+   We will return to negative zero.
+
+   Exponent manipulation is *associative* integer arithmetic
+
+
+Addition Associativity
+======================
+
+What is :math:`10^{-16} + 1 - 1`?
+
+.. math::
+
+   (10^{-16} + 1) - 1 &= 0 \\
+   10^{-16} + (1 - 1) &\equiv 10^{-16}
+
+Residuals below ULP (:math:`2\times10^{-16}`) are lost.
+
+.. notes::
+
+   ULP: Unit of least precision (or lowest bit)
+
+   10^-16 is below the current ULP (2x10^-16), so is lost in the first example.
+
+   Cancellation in the second summation shifts ULP, preserving 10^-16.
+
+
+Floating residual
+=================
+
+Let :math:`s = 1 + 2 \times 10^{-16}`.  What is :math:`(s + 1) - 1`?
+
+.. math::
+
+   s + 1 &= 2 \\
+   (s + 1) - 1 &= 1 \neq s
+
+Manipulation of :math:`s` shifts ULP to :math:`4 \times 10^{-16}`.
+
+.. notes::
+
+   Nearly identical issue, but illustrates a 2x increase in ULP
+
+
+Multiplication associativity
+============================
+
+If :math:`a = b = 1.5`, and :math:`c = 1 + 2^{-52}`, then
+
+.. math::
+
+   (a \times b) \times c &\equiv 2.25 + 2^{-51} \\
+   a \times (b \times c) &\equiv 2.25 + 2^{-50}
+
+(Actual results depend on rounding rules)
+
+.. notes::
+
+   Multiplication is less volatile, but trailing bits can still be lost.
+
+   The fractional part can only increase the exponent, and at most only one bit
+   is lost:  (1 <= 1.xxx * 1.xxx < 4)
+
+   - NOTE: Exponents follow integer arithmetic, and are associative
+
+
+Explicit Ordering
+=================
+
+Ambiguous ordering is rejected:
+
+.. math::
+
+   x + y + z
+
+Parentheses are *required*:
+
+.. math::
+
+   (x + y) + z \\
+   x + (y + z)
+
+Designed to optimize accuracy and performance.
+
+
+Implementation
+--------------
+
+GCC Fortran
+
+.. code:: sh
+
+   gfortran -fprotect-parens ...    # default
+   gfortran -Ofast ...              # Sets -fno-protect-parens
+
+Intel Fortran
+
+.. code:: sh
+
+   ifort -assume protect-parens     # Not default
+
+Note: Fortran requires this!
+
+.. If anyone asks: J3/18-007r1, 10.1.5
+
+
+Parallel Summation
+==================
+
+How to compute reproducible means or global sums?
+
+* Enforce ordering
+
+  .. math::
+
+     \sum{\phi} = (\phi_1 + (\phi_2 + ( \phi_3 + ... )))
+
+* Fixed-precision arithmetic
+
+  .. image:: img/fixedprec.svg
+     :target: https://doi.org/10.1016/j.parco.2014.04.007
+
+.. Hallberg and Adcroft, Parallel Computing (2014)
+
+.. notes::
+
+   So paretheses are effective to control short numbers of mathematical
+   operations, but how about large numbers of sums which are not necessarily
+   known?
+
+   Such as, say, the total mass or energy when your solution is distributed
+   over many CPUs or MPI ranks?
+
+   The straightforward solution is perhaps to just add the numbers in a
+   predictable order.  But some of the problems:
+
+   - we would need to gather all of the numbers before starting the sum
+
+   - Large numbers of sums have the potential to create cumulant roundoff
+     errors.
+
+   A strong alternative (used in MOM6) is to use a fixed-precision arithmetic
+   represented over multiple bins...
+
+   (TODO)
+
+
+Transcendentals
+===============
+
+How is ``sin(1.0)`` computed?
+
+* GFortran typically uses ``libc``.  What if it changes?
+
+* Intel 
+
+
+Higher order powers
+===================
+
+How to evaluate :math:`z^6`?
+
+Compilers may translate to this::
+
+      z6 = exp(6. * ln(z))   
+
+We recommend::
+
+      z3 = z * z * z
+      z6 = z3 * z3
+
+(Quiz: Why not ``(z * z) * z``?)
+
+
+Vectorization Invariance
+========================
+
+TODO:
+- Expressions ought to give identical answers for SSE and AVX (for example)
+- Not anywhere close yet...
+- Also: We want to choose AVX-optimal parentheses
+
+
+Negative Zero
+=============
+
+* Treat seriously!
+
+* Last resort: :math:`-0 * 0 = 0`
+
+
+Subroundoff
 ===========
 
-Slide contents
+Thickness-weighted mean:
 
-.. notes::
+.. math::
+
+   \overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i}
+
+What if all :math:`h_i = 0`?  Use subroundoff:
+
+.. math::
    
-   Some Slide notes
+   \overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i + h_\text{sub}}
+
+:math:`h_\text{sub}` is small enough s.t. :math:`h_i + h_{sub} = h_i`.
 
 
-Final
-=====
+----
 
-The end
+Associative Scaling
+===================
+
+Recall the floating point format
+
+.. math::
+
+   \phi \equiv (-1)^{\color{yellow}s} \times 2^{\color{yellow}M}
+      \times (1 + {\color{yellow}\alpha})
+
+Power-of-two multiplication is associative
+
+.. math::
+
+   2^N \times \phi \times 2^{-N} \equiv \phi
 
 .. notes::
 
-   End slide
+   ... up to over/underflow of the exponent
+
+
+Dimension Scaling
+=================
+
+Fields rescaled by dimensions should be invariant
+
+.. math::
+
+   u^{n+1} &= u^{n} +  \Delta t \times \mathcal{F} \\
+   {\color{yellow}2^{L-T}} u^{n+1} &= {\color{yellow}2^{L-T}} u^{n}
+      + {\color{yellow}2^T} \Delta t
+      \times {\color{yellow}2^{L - 2T}} \mathcal{F}
+
+
+GFD Scaling
+===========
+
+.. math::
+
+   u_t + u u_x + v u_y &= -g h_x \\
+   v_t + u v_x + v v_y &= -g h_y \\
+   h_t + h u_x + h v_y &= 0 \\
+
+.. list-table::
+
+   * - Dimensions:
+       * :math:`L` (horiz. length)
+       * :math:`T` (time)
+       * :math:`H` (layer thickness)
+
+     - Invariants:
+       * :math:`\left[ u, v \right] = L T^{-1}`
+       * :math:`\left[ g \right] = L^2 T^{-2} H^{-1}`
+
+
+Dimensional factors
+===================
+
+===== =======  =================
+Unit  Scaling  Name
+===== =======  =================
+s     T        Time
+m     L        Horizontal length
+m     H        Layer thickness
+m     Z        Vertical length
+kg/m3 R        Density
+J/kg  Q        Enthalpy
+===== =======  =================
+
+.. notes::
+
+   The currently tracked units are shown in this table.
+
+
+----
+
+
+Field Rotation
+==============
+
+.. image:: img/rotate_procedure.svg
+   :width: 50%
+
+
+Index Rotation
+==============
+
+.. list-table::
+
+   * - .. image:: img/rotate_grid1.svg
+          :width: 70%
+
+     - .. image:: img/rotate_grid2.svg
+          :width: 70%
+
+.. image:: img/rotate_mem.svg
+          :width: 65%
+
+
+.. notes::
+
+   I call it an "index rotation" here since there is no physical rotation of
+   the system here.
+
+   No physical rotation is ever applied to the system, neither the fields
+   themselves nor the coordinates.
+
+   What is being rotated is the index map of the fields.
+
+   Everything here is rotated: the fields, the topographies, the forcings, even
+   the coordinates.  The net result is nothing is r
+
+
+Rotation Invariance
+-------------------
+
+.. Again, no time to explain this, need to cut it
+
+.. image:: img/mom_rotate.svg
+   :width: 25%
+   :class: float
+
+Solutions must be invariant to **index rotation**, e.g.:
+
+.. math::
+
+   \phi(i',j') = \phi(j, N-i)
+
+Both *fields* and *coordinates* are remapped.
+
+Note: :math:`u` and :math:`v` are velocities along :math:`i` and :math:`j`!
+
+
+
+Rotational Consistency
+======================
+
+.. code:: fortran
+
+   beta_topo_x = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &
+                 (G%bathyT(i+1,j)-G%bathyT(i,j)) * G%IdxCu(I,j)  &
+             / max(G%bathyT(i+1,j),G%bathyT(i,j), GV%H_subroundoff) &
+         +       (G%bathyT(i,j)-G%bathyT(i-1,j)) * G%IdxCu(I-1,j) &
+             / max(G%bathyT(i,j),G%bathyT(i-1,j), GV%H_subroundoff) )
+
+   beta_topo_y = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &
+                 (G%bathyT(i,j+1)-G%bathyT(i,j)) * G%IdyCv(i,J)  &
+             / max(G%bathyT(i,j+1),G%bathyT(i,j), GV%H_subroundoff) + &
+                 (G%bathyT(i,j)-G%bathyT(i,j-1)) * G%IdyCv(i,J-1) &
+             / max(G%bathyT(i,j),G%bathyT(i,j-1), GV%H_subroundoff) )
+
+Index rotation ensures directional consistency
+
+
+Invariant stencils
+==================
+
+:math:`\phi^{(c)}_{i,j} = \frac{1}{4} (\phi_A + \phi_B + \phi_C + \phi_D)`
+
+.. image:: img/stencil.svg
+   :class: float
+
+.. list-table::
+
+   * - .. image:: img/stencil1.svg
+
+     - :math:`\frac{1}{4} ( (\phi_A + \phi_B) + (\phi_C + \phi_D) )`
+
+       :math:`\frac{1}{4} ( (\phi_A + \phi_C) + (\phi_B + \phi_D) )`
+
+   * - .. image:: img/stencil2.svg
+
+     - :math:`\frac{1}{4} ( (\phi_A + \phi_D) + (\phi_B + \phi_C) )`
+
+.. notes::
+
+   - Stencils should be rotationally invariant.
+
+   - Example 1  
+
+   The ideal outcome is to construct the stencil in a rotationally invariant
+   form.
+
+   The first example will evaluate its terms in a different order after a
+   quarter turn.
+
+   The second form is rotationally invariant to any number of quarter turns.
+
+
+Rotational ordering
+===================
+
+.. code:: fortran
+
+   subroutine advect_tracer(...)
+      ! ...
+      x_first = modulo(turns, 2) == 1
+      if (x_first) then
+         call advect_x(...)
+         call advect_y(...)
+      else
+         call advect_y(...)
+         call advect_x(...)
+      endif
+   end subroutine advect_tracer
+
+When all else fails, reorder the algorithm:
+
+.. notes::
+
+   This is a last resort, but may be required if complexity has grown out of
+   control.
+
+
+Summary
+=======
+
+TODO

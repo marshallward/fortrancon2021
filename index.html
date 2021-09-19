@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="dcterms.date" content="2021-09-23">
+  <title>Bit-reproducible methods for dimensional and rotational testing</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="./reveal.js/dist/reveal.css">
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="./reveal.js/css/theme/gfdl.css" id="theme">
+  <!-- Explicitly add zenburn for highlight support -->
+  <link rel="stylesheet" href="./reveal.js/plugin/highlight/zenburn.css" id="theme">
+  <!-- Printing and PDF exports -->
+  <script>
+    var link = document.createElement( 'link' );
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = window.location.search.match( /print-pdf/gi ) ? './reveal.js/css/print/pdf.scss' : './reveal.js/css/print/paper.scss';
+    document.getElementsByTagName( 'head' )[0].appendChild( link );
+  </script>
+  <!--[if lt IE 9]>
+  <script src="./reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+  <base href="./index.html">
+</head>
+<body>
+  <div class="reveal"
+       style="background: url(img/bg_gfdl.jpg);
+              background-size: cover;">
+
+    <!-- Original ratio: 10.04" x 7.08" -->
+    <div style="height: 100vh; position: absolute; bottom: -50vh; left: -40vh">
+      <img style="height: 100vh; width: 142vh" src="img/bg_globe.png">
+    </div>
+
+    <header style="width: 10vh; position: absolute; bottom: 2vh; right: 2vh;">
+      <img src="img/noaa_logo.png">
+    </header>
+
+    <footer style="font-size: 1pc; position: absolute; bottom: 2%; left: 2%;">
+      <!-- code>https://marshallward.org/mom6vv</code> -->
+      <code><p><a href="https://marshallward.org/fortrancon2021.html">https://marshallward.org/fortrancon2021.html</a></p></code>
+    </footer>
+
+    <div class="slides">
+
+<section id="title-slide">
+  <!--div class="reveal" style="text-align: right;">
+    <img src="img/noaa_logo.png"
+         style="background: none; border: none; box-shadow: none;
+         width: 30%"
+         alt="NCI">
+  </div-->
+  <h1 class="title">Bit-reproducible methods for dimensional and rotational testing</h1>
+  <p class="author" style="text-align: right;"><ul>
+<li>Robert Hallberg</li>
+<li><strong>Marshall Ward</strong></li>
+<li>Alistair Adcroft</li>
+</ul></p>
+  <p class="date" style="text-align: right;">2021-09-23</p>
+  <!-- Currently cannot add notes to a title slide, so have to do manually-->
+  <aside class="notes">
+    <p>Introductory comments, written to slide notes</p>
+  </aside>
+</section>
+
+<section id="motivation" class="title-slide slide level1">
+<h1>Motivation</h1>
+<ul>
+<li>Forecasting / Climate</li>
+<li><dl>
+<dt>Reproducibility</dt>
+<dd><ul>
+<li>Chaotic dynamics: 1 ULP =&gt; O(1) changes</li>
+<li>Replication of forecasts</li>
+<li>Automated testing without doofy tolerances</li>
+</ul>
+</dd>
+</dl></li>
+<li><dl>
+<dt>MOM6 dynamcs</dt>
+<dd><ul>
+<li>Bryan-Cox foundations</li>
+<li>Layered Dynamics</li>
+<li>ALE / Lagrangian remapping</li>
+</ul>
+</dd>
+</dl></li>
+<li><dl>
+<dt>MOM6 test suite</dt>
+<dd><ul>
+<li><dl>
+<dt>Verification by checksums</dt>
+<dd><ul>
+<li>Dynamics</li>
+<li>Diagnostics</li>
+</ul>
+</dd>
+</dl></li>
+</ul>
+</dd>
+</dl></li>
+</ul>
+</section>
+
+<section id="global-modeling" class="title-slide slide level1">
+<h1>Global Modeling</h1>
+<p><video data-src="media/mom6_relvort.mp4" style="width:85.0%" controls=""><a href="media/mom6_relvort.mp4">image</a></video></p>
+<aside class="notes">
+<dl>
+<dt>GFDL CM4 model:</dt>
+<dd><ul>
+<li>coupled to MOM6</li>
+</ul>
+</dd>
+<dt>Phenomena on this model:</dt>
+<dd><ul>
+<li><dl>
+<dt>Equatorial Waves</dt>
+<dd><ul>
+<li>Large, very fast</li>
+<li>shelf-reflecting =&gt; ENSO</li>
+</ul>
+</dd>
+</dl></li>
+<li><dl>
+<dt>Southern Ocean</dt>
+<dd><ul>
+<li>Slower, turbulent eddies</li>
+<li>Strong topographic driven</li>
+</ul>
+</dd>
+</dl></li>
+<li><dl>
+<dt>Western Boundary Currents</dt>
+<dd><ul>
+<li>Gulf Stream (Eastern US), Kuroshio (Japan)</li>
+<li>Agulhas (Africa) -&gt; eddies</li>
+<li>Benguela (S.America), EAC (Australia)</li>
+</ul>
+</dd>
+</dl></li>
+<li></li>
+</ul>
+</dd>
+<dt>Things you cannot see</dt>
+<dd><ul>
+<li>fast very large scale tidal waves</li>
+<li>Meridional overturning circulation</li>
+</ul>
+</dd>
+</dl>
+</aside>
+</section>
+
+<section id="regional-modeling" class="title-slide slide level1">
+<h1>Regional Modeling</h1>
+<p><video data-src="media/mom6_regional.mp4" style="width:90.0%" controls=""><a href="media/mom6_regional.mp4">image</a></video></p>
+<aside class="notes">
+<p>Say something interesting...</p>
+<ul>
+<li>Fisheries</li>
+<li>Refineries (Gulf of Mexico)</li>
+<li>...?</li>
+</ul>
+</aside>
+</section>
+
+<section id="examples-of-mom6" class="title-slide slide level1">
+<h1>Examples of MOM6</h1>
+<ul>
+<li>Idealized process studies</li>
+<li>GFDL: ESM4/CM4 coupled model (adcroft et al 2019, JAMES)</li>
+<li>Ice-sheet ocean interactions</li>
+<li>NCAR CESM3</li>
+<li>Australia COSIMA (soon)</li>
+<li>Fishery management</li>
+<li>NOAA/NCEP CFS-v3 coupled seasonal</li>
+<li>US Navy HYCOM successor</li>
+</ul>
+</section>
+
+<section id="ocean-dynamics" class="title-slide slide level1">
+<h1>Ocean Dynamics</h1>
+<p><span class="math display">\[\begin{aligned}
+\frac{D\mathbf{u}}{Dt} + f \hat{z} \times \mathbf{u} &amp;= -\nabla p + \mathcal{F} \\
+p_z &amp;= -g \rho \\
+\frac{D\phi}{Dt} &amp;= 0 \\
+\nabla \cdot \mathbf{u} + w_z &amp;= 0 \\
+\rho &amp;= f(p, T, S, ...)
+\end{aligned}\]</span></p>
+</section>
+
+<section id="layered-dynamics" class="title-slide slide level1">
+<h1>Layered Dynamics</h1>
+<p><img data-src="img/mom6_vcoord.png" style="width:75.0%" alt="image" /></p>
+</section>
+
+<section id="solution-verification" class="title-slide slide level1">
+<h1>Solution verification</h1>
+<p><code>ocean.stats</code></p>
+<pre class="bash"><code>Step   Days   Energy/Mass [m2 s-2]     Mean Sea Level [m]   ...
+
+   0   0.00   7.2161166068132286E-27   1.8190E-12           ...
+  12   0.50   2.7781004671136538E-04   1.1369E-12           ...
+  24   1.00   2.7734897826598717E-04   1.8190E-12           ...</code></pre>
+<p>Based on global metrics (energy, mass, etc)</p>
+</section>
+
+<section id="diagnostic-verification" class="title-slide slide level1">
+<h1>Diagnostic verification</h1>
+<p><code>chksum_diag</code>:</p>
+<pre><code>u-point: ocean_model-u
+  min  = -6.7187595818683776E-03  max  =  3.3480219779204019E-02
+  mean =  1.1239682303793666E-04  bits = 21851
+v-point: ocean_model-v
+  min  = -8.3469699425156359E-03  max  =  6.8420831486068704E-03 
+  mean =  1.2076392816784489E-03  bits = 18606
+h-point: ocean_model-h
+  min  =  9.9999999999999915E-04  max  =  5.6265092225099863E+02
+  mean =  3.6490088139048595E+02  bits = 18673 </code></pre>
+<p>Min, max, mean, bit count for every diagnostic</p>
+</section>
+
+<section id="verification-testing" class="title-slide slide level1">
+<h1>Verification Testing</h1>
+<p><img data-src="img/mom_verify.svg" style="width:80.0%" alt="image" /></p>
+<aside class="notes">
+<ul>
+<li>Also called "invariance tests"</li>
+<li>Configured for different compilers, environments</li>
+<li><dl>
+<dt>Platform-independent:</dt>
+<dd><ul>
+<li>no reference answers</li>
+<li>identical comparisons</li>
+</ul>
+</dd>
+</dl></li>
+<li>"Regression" test for reference code (e.g. <code>main</code>)</li>
+</ul>
+</aside>
+</section>
+
+<section id="validation-testing" class="title-slide slide level1">
+<h1>Validation Testing</h1>
+<p><img data-src="img/mom_validate.svg" alt="image" /></p>
+<aside class="notes">
+<ul>
+<li>Specified for <em>our</em> machine</li>
+<li><em>Does</em> have reference answers</li>
+<li>Very strict testing</li>
+</ul>
+</aside>
+</section>
+
+<section id="external-testing" class="title-slide slide level1">
+<h1>External Testing</h1>
+<p><img data-src="img/gitrepos.svg" style="width:50.0%" alt="image" /></p>
+<aside class="notes">
+<p>TODO: Need to add NASA...</p>
+</aside>
+</section>
+
+<section id="floating-point-review" class="title-slide slide level1">
+<h1>Floating Point Review</h1>
+<p><a href="https://commons.wikimedia.org/wiki/File:Float_example.svg"><img data-src="img/ieee_float_fmt.svg" alt="image" /></a></p>
+<p><span class="math display">\[\phi \equiv (-1)^{\color{yellow}s} \times 2^{\color{aquamarine}M}
+   \times (1 + {\color{pink}\alpha})\]</span></p>
+<ul>
+<li>Smallest fractional diff: <span class="math inline">\(2^{-52} \approx 2.2 \times 10^{-16}\)</span></li>
+<li>17 digits to uniquely specify a result</li>
+</ul>
+<aside class="notes">
+<p>Things we ignore: - Inf and NaN - Denormals</p>
+<p>We will return to negative zero.</p>
+<p>Exponent manipulation is <em>associative</em> integer arithmetic</p>
+</aside>
+</section>
+
+<section id="addition-associativity" class="title-slide slide level1">
+<h1>Addition Associativity</h1>
+<p>What is <span class="math inline">\(10^{-16} + 1 - 1\)</span>?</p>
+<p><span class="math display">\[\begin{aligned}
+(10^{-16} + 1) - 1 &amp;= 0 \\
+10^{-16} + (1 - 1) &amp;\equiv 10^{-16}
+\end{aligned}\]</span></p>
+<p>Residuals below ULP (<span class="math inline">\(2\times10^{-16}\)</span>) are lost.</p>
+<aside class="notes">
+<p>ULP: Unit of least precision (or lowest bit)</p>
+<p>10^-16 is below the current ULP (2x10^-16), so is lost in the first example.</p>
+<p>Cancellation in the second summation shifts ULP, preserving 10^-16.</p>
+</aside>
+</section>
+
+<section id="floating-residual" class="title-slide slide level1">
+<h1>Floating residual</h1>
+<p>Let <span class="math inline">\(s = 1 + 2 \times 10^{-16}\)</span>. What is <span class="math inline">\((s + 1) - 1\)</span>?</p>
+<p><span class="math display">\[\begin{aligned}
+s + 1 &amp;= 2 \\
+(s + 1) - 1 &amp;= 1 \neq s
+\end{aligned}\]</span></p>
+<p>Manipulation of <span class="math inline">\(s\)</span> shifts ULP to <span class="math inline">\(4 \times 10^{-16}\)</span>.</p>
+<aside class="notes">
+<p>The example here is making the same point as the last one, but showing that the least resolvable value can change (or "float") during a calculation.</p>
+<p>Even though we can initially resolve the 2 x 10^-16 fraction, this fraction is immediately lost once we add +1 to the result, shifting the fraction.</p>
+<p>So it's not enough to just look for resolvable residuals, because this "floats" to fit the value.</p>
+</aside>
+</section>
+
+<section id="multiplication-associativity" class="title-slide slide level1">
+<h1>Multiplication associativity</h1>
+<p>If <span class="math inline">\(a = b = 1.5\)</span>, and <span class="math inline">\(c = 1 + 2^{-52}\)</span>, then</p>
+<p><span class="math display">\[\begin{aligned}
+(a \times b) \times c &amp;\equiv 2.25 + 2^{-51} \\
+a \times (b \times c) &amp;\equiv 2.25 + 2^{-50}
+\end{aligned}\]</span></p>
+<p>(Actual results depend on rounding rules)</p>
+<aside class="notes">
+<p>Associativity of multiplication is overall less volatile, since the largest variations are handled in the exponent.</p>
+<p>The fractional part can only increase the exponent, and at most only one bit is lost: (1 &lt;= 1.xxx * 1.xxx &lt; 4)</p>
+<p>But it is still revelant, and trailing bits can be lost, as seen in the example here.</p>
+<p>Note however that multiplication of the exponent 2^{exp} is a pure integer operation and is a reversible operation, up to over/underflow. (It also just happens to also manipulate the {frac}).</p>
+</aside>
+</section>
+
+<section>
+<section id="explicit-ordering" class="title-slide slide level1">
+<h1>Explicit Ordering</h1>
+<p>Ambiguous ordering is rejected:</p>
+<p><span class="math display">\[x + y + z\]</span></p>
+<p>Parentheses are <em>required</em>:</p>
+<p><span class="math display">\[\begin{aligned}
+(x + y) + z \\
+x + (y + z)
+\end{aligned}\]</span></p>
+<p>Designed to optimize accuracy and performance.</p>
+</section>
+<section id="implementation" class="slide level2">
+<h2>Implementation</h2>
+<p>GCC Fortran</p>
+<pre class="sh"><code>gfortran -fprotect-parens ...    # default
+gfortran -Ofast ...              # Sets -fno-protect-parens</code></pre>
+<p>Intel Fortran</p>
+<pre class="sh"><code>ifort -assume protect-parens     # Not default</code></pre>
+<p>Note: Fortran requires this!</p>
+</section></section>
+<section id="parallel-summation" class="title-slide slide level1">
+<h1>Parallel Summation</h1>
+<p>How to compute reproducible means or global sums?</p>
+<ul>
+<li><p>Enforce ordering</p>
+<p><span class="math display">\[\sum{\phi} = (\phi_1 + (\phi_2 + ( \phi_3 + ... )))\]</span></p></li>
+<li><p>Fixed-precision arithmetic</p>
+<p><a href="https://doi.org/10.1016/j.parco.2014.04.007"><img data-src="img/fixedprec.svg" alt="image" /></a></p></li>
+</ul>
+<aside class="notes">
+<p>So paretheses are effective to control short numbers of mathematical operations, but how about large numbers of sums which are not necessarily known?</p>
+<p>Such as, say, the total mass or energy when your solution is distributed over many CPUs or MPI ranks?</p>
+<p>The straightforward solution is perhaps to just add the numbers in a predictable order. But some of the problems:</p>
+<ul>
+<li>we would need to gather all of the numbers before starting the sum</li>
+<li>Large numbers of sums have the potential to create cumulant roundoff errors.</li>
+</ul>
+<p>A strong alternative (used in MOM6) is to use a fixed-precision arithmetic represented over multiple bins...</p>
+<p>(TODO)</p>
+</aside>
+</section>
+
+<section id="transcendentals" class="title-slide slide level1">
+<h1>Transcendentals</h1>
+<p>How is <code>sin(1.0)</code> computed?</p>
+<ul>
+<li>GFortran typically uses <code>libc</code>. What if it changes?</li>
+<li>Intel</li>
+</ul>
+</section>
+
+<section id="higher-order-powers" class="title-slide slide level1">
+<h1>Higher order powers</h1>
+<p>How to evaluate <span class="math inline">\(z^6\)</span>?</p>
+<p>Compilers may translate to this:</p>
+<pre><code>z6 = exp(6. * ln(z))   </code></pre>
+<p>We recommend:</p>
+<pre><code>z3 = z * z * z
+z6 = z3 * z3</code></pre>
+<p>(Quiz: Why not <code>(z * z) * z</code>?)</p>
+</section>
+
+<section id="vectorization-invariance" class="title-slide slide level1">
+<h1>Vectorization Invariance</h1>
+<p>TODO: - Expressions ought to give identical answers for SSE and AVX (for example) - Not anywhere close yet... - Also: We want to choose AVX-optimal parentheses</p>
+</section>
+
+<section id="negative-zero" class="title-slide slide level1">
+<h1>Negative Zero</h1>
+<ul>
+<li>Treat seriously!</li>
+<li>Last resort: <span class="math inline">\(-0 * 0 = 0\)</span></li>
+</ul>
+</section>
+
+<section>
+<section id="subroundoff" class="title-slide slide level1">
+<h1>Subroundoff</h1>
+<p>Thickness-weighted mean:</p>
+<p><span class="math display">\[\overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i}\]</span></p>
+<p>What if all <span class="math inline">\(h_i = 0\)</span>? Use subroundoff:</p>
+<p><span class="math display">\[\overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i + h_\text{sub}}\]</span></p>
+<p><span class="math inline">\(h_\text{sub}\)</span> is small enough s.t. <span class="math inline">\(h_i + h_{sub} = h_i\)</span>.</p>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section id="associative-scaling" class="title-slide slide level1">
+<h1>Associative Scaling</h1>
+<p>Recall the floating point format</p>
+<p><span class="math display">\[\phi \equiv (-1)^{\color{yellow}s} \times 2^{\color{yellow}M}
+   \times (1 + {\color{yellow}\alpha})\]</span></p>
+<p>Power-of-two multiplication is associative</p>
+<p><span class="math display">\[2^N \times \phi \times 2^{-N} \equiv \phi\]</span></p>
+<aside class="notes">
+<p>... up to over/underflow of the exponent</p>
+</aside>
+</section>
+
+<section id="dimension-scaling" class="title-slide slide level1">
+<h1>Dimension Scaling</h1>
+<p>Fields rescaled by dimensions should be invariant</p>
+<p><span class="math display">\[\begin{aligned}
+u^{n+1} &amp;= u^{n} +  \Delta t \times \mathcal{F} \\
+{\color{yellow}2^{L-T}} u^{n+1} &amp;= {\color{yellow}2^{L-T}} u^{n}
+   + {\color{yellow}2^T} \Delta t
+   \times {\color{yellow}2^{L - 2T}} \mathcal{F}
+\end{aligned}\]</span></p>
+</section>
+
+<section id="gfd-scaling" class="title-slide slide level1">
+<h1>GFD Scaling</h1>
+<p><span class="math display">\[\begin{aligned}
+u_t + u u_x + v u_y &amp;= -g h_x \\
+v_t + u v_x + v v_y &amp;= -g h_y \\
+h_t + h u_x + h v_y &amp;= 0 \\
+\end{aligned}\]</span></p>
+<table>
+<tbody>
+<tr class="odd">
+<td>Dimensions:
+<ul>
+<li><span class="math inline">\(L\)</span> (horiz. length)</li>
+<li><span class="math inline">\(T\)</span> (time)</li>
+<li><span class="math inline">\(H\)</span> (layer thickness)</li>
+</ul></td>
+<td>Invariants:
+<ul>
+<li><span class="math inline">\(\left[ u, v \right] = L T^{-1}\)</span></li>
+<li><span class="math inline">\(\left[ g \right] = L^2 T^{-2} H^{-1}\)</span></li>
+</ul></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<section id="dimensional-factors" class="title-slide slide level1">
+<h1>Dimensional factors</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Unit</th>
+<th>Scaling</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>s</td>
+<td>T</td>
+<td>Time</td>
+</tr>
+<tr class="even">
+<td>m</td>
+<td>L</td>
+<td>Horizontal length</td>
+</tr>
+<tr class="odd">
+<td>m</td>
+<td>H</td>
+<td>Layer thickness</td>
+</tr>
+<tr class="even">
+<td>m</td>
+<td>Z</td>
+<td>Vertical length</td>
+</tr>
+<tr class="odd">
+<td>kg/m3</td>
+<td>R</td>
+<td>Density</td>
+</tr>
+<tr class="even">
+<td>J/kg</td>
+<td>Q</td>
+<td>Enthalpy</td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>The currently tracked units are shown in this table.</p>
+</aside>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section id="field-rotation" class="title-slide slide level1">
+<h1>Field Rotation</h1>
+<p><img data-src="img/rotate_procedure.svg" style="width:50.0%" alt="image" /></p>
+</section>
+
+<section>
+<section id="index-rotation" class="title-slide slide level1">
+<h1>Index Rotation</h1>
+<table>
+<tbody>
+<tr class="odd">
+<td><img data-src="img/rotate_grid1.svg" style="width:70.0%" alt="image" /></td>
+<td><img data-src="img/rotate_grid2.svg" style="width:70.0%" alt="image" /></td>
+</tr>
+</tbody>
+</table>
+<p><img data-src="img/rotate_mem.svg" style="width:65.0%" alt="image" /></p>
+<aside class="notes">
+<p>I call it an "index rotation" here since there is no physical rotation of the system here.</p>
+<p>No physical rotation is ever applied to the system, neither the fields themselves nor the coordinates.</p>
+<p>What is being rotated is the index map of the fields.</p>
+<p>Everything here is rotated: the fields, the topographies, the forcings, even the coordinates. The net result is nothing is r</p>
+</aside>
+</section>
+<section id="rotation-invariance" class="slide level2">
+<h2>Rotation Invariance</h2>
+<p><img data-src="img/mom_rotate.svg" class="float float" style="width:25.0%" alt="image" /></p>
+<p>Solutions must be invariant to <strong>index rotation</strong>, e.g.:</p>
+<p><span class="math display">\[\phi(i&#39;,j&#39;) = \phi(j, N-i)\]</span></p>
+<p>Both <em>fields</em> and <em>coordinates</em> are remapped.</p>
+<p>Note: <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> are velocities along <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>!</p>
+</section></section>
+<section id="rotational-consistency" class="title-slide slide level1">
+<h1>Rotational Consistency</h1>
+<pre class="fortran"><code>beta_topo_x = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &amp;
+              (G%bathyT(i+1,j)-G%bathyT(i,j)) * G%IdxCu(I,j)  &amp;
+          / max(G%bathyT(i+1,j),G%bathyT(i,j), GV%H_subroundoff) &amp;
+      +       (G%bathyT(i,j)-G%bathyT(i-1,j)) * G%IdxCu(I-1,j) &amp;
+          / max(G%bathyT(i,j),G%bathyT(i-1,j), GV%H_subroundoff) )
+
+beta_topo_y = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &amp;
+              (G%bathyT(i,j+1)-G%bathyT(i,j)) * G%IdyCv(i,J)  &amp;
+          / max(G%bathyT(i,j+1),G%bathyT(i,j), GV%H_subroundoff) + &amp;
+              (G%bathyT(i,j)-G%bathyT(i,j-1)) * G%IdyCv(i,J-1) &amp;
+          / max(G%bathyT(i,j),G%bathyT(i,j-1), GV%H_subroundoff) )</code></pre>
+<p>Index rotation ensures directional consistency</p>
+</section>
+
+<section id="invariant-stencils" class="title-slide slide level1">
+<h1>Invariant stencils</h1>
+<p><span class="math inline">\(\phi^{(c)}_{i,j} = \frac{1}{4} (\phi_A + \phi_B + \phi_C + \phi_D)\)</span></p>
+<p><img data-src="img/stencil.svg" class="float float" alt="image" /></p>
+<table>
+<tbody>
+<tr class="odd">
+<td><p><img data-src="img/stencil1.svg" alt="image" /></p></td>
+<td><p><span class="math inline">\(\frac{1}{4} ( (\phi_A + \phi_B) + (\phi_C + \phi_D) )\)</span></p>
+<p><span class="math inline">\(\frac{1}{4} ( (\phi_A + \phi_C) + (\phi_B + \phi_D) )\)</span></p></td>
+</tr>
+<tr class="even">
+<td><img data-src="img/stencil2.svg" alt="image" /></td>
+<td><span class="math inline">\(\frac{1}{4} ( (\phi_A + \phi_D) + (\phi_B + \phi_C) )\)</span></td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<ul>
+<li>Stencils should be rotationally invariant.</li>
+<li>Example 1</li>
+</ul>
+<p>The ideal outcome is to construct the stencil in a rotationally invariant form.</p>
+<p>The first example will evaluate its terms in a different order after a quarter turn.</p>
+<p>The second form is rotationally invariant to any number of quarter turns.</p>
+</aside>
+</section>
+
+<section id="rotational-ordering" class="title-slide slide level1">
+<h1>Rotational ordering</h1>
+<pre class="fortran"><code>subroutine advect_tracer(...)
+   ! ...
+   x_first = modulo(turns, 2) == 1
+   if (x_first) then
+      call advect_x(...)
+      call advect_y(...)
+   else
+      call advect_y(...)
+      call advect_x(...)
+   endif
+end subroutine advect_tracer</code></pre>
+<p>When all else fails, reorder the algorithm:</p>
+<aside class="notes">
+<p>This is a last resort, but may be required if complexity has grown out of control.</p>
+</aside>
+</section>
+
+<section id="summary" class="title-slide slide level1">
+<h1>Summary</h1>
+<p>TODO</p>
+</section>
+    </div>
+  </div>
+
+  <script src="./reveal.js/dist/reveal.js"></script>
+  <script src="./reveal.js/plugin/math/math.js"></script>
+  <script src="./reveal.js/plugin/notes/notes.js"></script>
+  <script src="./reveal.js/plugin/highlight/highlight.js"></script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        // Display the page number of the current slide
+        slideNumber: true,
+        // Push each slide change to the browser history
+        history: true,
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js',
+          config: 'TeX-AMS_HTML-full',
+          //mathjax: 'https://cdn.jsdelivr.net/gh/mathjax/mathjax@2.7.9/MathJax.js',
+          //config: 'TeX-AMS_HTML-full',
+          //TeX: {
+          //  inlineMath: [['\\(','\\)']],
+          //  displayMath: [['\\[','\\]']],
+          //  balanceBraces: true,
+          //  processEscapes: false,
+          //  processRefs: true,
+          //  processEnvironments: true,
+          //  preview: 'TeX',
+          //  skipTags: ['script','noscript','style','textarea','pre','code'],
+          //  ignoreClass: 'tex2jax_ignore',
+          //  processClass: 'tex2jax_process'
+          //},
+        },
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: './reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: './reveal.js/plugin/zoom/zoom.js', async: true },
+          { src: './reveal.js/plugin/notes/notes.js', async: true }
+        ],
+        plugins : [ RevealMath, RevealNotes, RevealHighlight],
+      });
+    </script>
+    </body>
+</html>

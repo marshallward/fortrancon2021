@@ -278,6 +278,8 @@ $if(mathjax)$
         math: {
           mathjax: '$mathjaxurl$',
           config: 'TeX-AMS_HTML-full',
+          //mathjax: 'https://cdn.jsdelivr.net/gh/mathjax/mathjax@2.7.9/MathJax.js',
+          //config: 'TeX-AMS_HTML-full',
           //TeX: {
           //  inlineMath: [['\\(','\\)']],
           //  displayMath: [['\\[','\\]']],
@@ -296,7 +298,7 @@ $endif$
         // Optional reveal.js plugins
         dependencies: [
           { src: '$revealjs-url$/lib/js/classList.js', condition: function() { return !document.body.classList; } },
-          { src: '$revealjs-url$/plugin/zoom-js/zoom.js', async: true },
+          { src: '$revealjs-url$/plugin/zoom/zoom.js', async: true },
 $if(notes-server)$
           { src: '$revealjs-url$/socket.io/socker.io.js', async: true },
           { src: '$revealjs-url$/plugin/notes-server/client.js', async: true },
