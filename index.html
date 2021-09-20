@@ -72,45 +72,6 @@
   </aside>
 </section>
 
-<section id="motivation" class="title-slide slide level1">
-<h1>Motivation</h1>
-<ul>
-<li>Forecasting / Climate</li>
-<li><dl>
-<dt>Reproducibility</dt>
-<dd><ul>
-<li>Chaotic dynamics: 1 ULP =&gt; O(1) changes</li>
-<li>Replication of forecasts</li>
-<li>Automated testing without doofy tolerances</li>
-</ul>
-</dd>
-</dl></li>
-<li><dl>
-<dt>MOM6 dynamcs</dt>
-<dd><ul>
-<li>Bryan-Cox foundations</li>
-<li>Layered Dynamics</li>
-<li>ALE / Lagrangian remapping</li>
-</ul>
-</dd>
-</dl></li>
-<li><dl>
-<dt>MOM6 test suite</dt>
-<dd><ul>
-<li><dl>
-<dt>Verification by checksums</dt>
-<dd><ul>
-<li>Dynamics</li>
-<li>Diagnostics</li>
-</ul>
-</dd>
-</dl></li>
-</ul>
-</dd>
-</dl></li>
-</ul>
-</section>
-
 <section id="global-modeling" class="title-slide slide level1">
 <h1>Global Modeling</h1>
 <p><video data-src="media/mom6_relvort.mp4" style="width:85.0%" controls=""><a href="media/mom6_relvort.mp4">image</a></video></p>
@@ -148,7 +109,7 @@
 </ul>
 </dd>
 </dl></li>
-<li></li>
+<li>Tropical storms (from atm)</li>
 </ul>
 </dd>
 <dt>Things you cannot see</dt>
@@ -174,20 +135,6 @@
 </aside>
 </section>
 
-<section id="examples-of-mom6" class="title-slide slide level1">
-<h1>Examples of MOM6</h1>
-<ul>
-<li>Idealized process studies</li>
-<li>GFDL: ESM4/CM4 coupled model (adcroft et al 2019, JAMES)</li>
-<li>Ice-sheet ocean interactions</li>
-<li>NCAR CESM3</li>
-<li>Australia COSIMA (soon)</li>
-<li>Fishery management</li>
-<li>NOAA/NCEP CFS-v3 coupled seasonal</li>
-<li>US Navy HYCOM successor</li>
-</ul>
-</section>
-
 <section id="ocean-dynamics" class="title-slide slide level1">
 <h1>Ocean Dynamics</h1>
 <p><span class="math display">\[\begin{aligned}
@@ -202,6 +149,22 @@ p_z &amp;= -g \rho \\
 <section id="layered-dynamics" class="title-slide slide level1">
 <h1>Layered Dynamics</h1>
 <p><img data-src="img/mom6_vcoord.png" style="width:75.0%" alt="image" /></p>
+</section>
+
+<section id="chaotic-dynamics" class="title-slide slide level1">
+<h1>Chaotic Dynamics</h1>
+<ul>
+<li><dl>
+<dt>Reproducibility</dt>
+<dd><ul>
+<li>Chaotic dynamics: 1 ULP =&gt; O(1) changes</li>
+<li>Replication of forecasts</li>
+<li>Automated testing without doofy tolerances</li>
+</ul>
+</dd>
+</dl></li>
+</ul>
+<p>TODO: Video showing evolution?</p>
 </section>
 
 <section id="solution-verification" class="title-slide slide level1">
@@ -250,6 +213,52 @@ h-point: ocean_model-h
 </aside>
 </section>
 
+<section id="verification-tests" class="title-slide slide level1">
+<h1>Verification Tests</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Test</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>grid</td>
+<td>Symmetric/Asymmetric memory grids</td>
+</tr>
+<tr class="even">
+<td>layout</td>
+<td>1×1 and 2×1 domain decomposition</td>
+</tr>
+<tr class="odd">
+<td>restart</td>
+<td>Restart at mid-run</td>
+</tr>
+<tr class="even">
+<td>dimension</td>
+<td>Dimensional scaling</td>
+</tr>
+<tr class="odd">
+<td>rotation</td>
+<td>Index rotation</td>
+</tr>
+<tr class="even">
+<td>repro</td>
+<td>Optimized reproducible mode</td>
+</tr>
+<tr class="odd">
+<td>openmp</td>
+<td>OpenMP (single-thread)</td>
+</tr>
+<tr class="even">
+<td>nan</td>
+<td>NaN array initialization</td>
+</tr>
+</tbody>
+</table>
+</section>
+
 <section id="validation-testing" class="title-slide slide level1">
 <h1>Validation Testing</h1>
 <p><img data-src="img/mom_validate.svg" alt="image" /></p>
@@ -260,6 +269,12 @@ h-point: ocean_model-h
 <li>Very strict testing</li>
 </ul>
 </aside>
+</section>
+
+<section id="production-runs" class="title-slide slide level1">
+<h1>Production Runs</h1>
+<p>Examples: * Ocean Only * Ice-Ocean * Coupled (Atmos-Ice-Ocean)</p>
+<p>Additional Fallback: Production runs within GFDL</p>
 </section>
 
 <section id="external-testing" class="title-slide slide level1">
@@ -290,8 +305,8 @@ h-point: ocean_model-h
 <h1>Addition Associativity</h1>
 <p>What is <span class="math inline">\(10^{-16} + 1 - 1\)</span>?</p>
 <p><span class="math display">\[\begin{aligned}
-(10^{-16} + 1) - 1 &amp;= 0 \\
-10^{-16} + (1 - 1) &amp;\equiv 10^{-16}
+(10^{-16} + 1) - 1 &amp;\equiv 0 \\
+10^{-16} + (1 - 1) &amp;= 10^{-16}
 \end{aligned}\]</span></p>
 <p>Residuals below ULP (<span class="math inline">\(2\times10^{-16}\)</span>) are lost.</p>
 <aside class="notes">
@@ -310,9 +325,7 @@ s + 1 &amp;= 2 \\
 \end{aligned}\]</span></p>
 <p>Manipulation of <span class="math inline">\(s\)</span> shifts ULP to <span class="math inline">\(4 \times 10^{-16}\)</span>.</p>
 <aside class="notes">
-<p>The example here is making the same point as the last one, but showing that the least resolvable value can change (or "float") during a calculation.</p>
-<p>Even though we can initially resolve the 2 x 10^-16 fraction, this fraction is immediately lost once we add +1 to the result, shifting the fraction.</p>
-<p>So it's not enough to just look for resolvable residuals, because this "floats" to fit the value.</p>
+<p>Nearly identical issue, but illustrates a 2x increase in ULP</p>
 </aside>
 </section>
 
@@ -325,10 +338,11 @@ a \times (b \times c) &amp;\equiv 2.25 + 2^{-50}
 \end{aligned}\]</span></p>
 <p>(Actual results depend on rounding rules)</p>
 <aside class="notes">
-<p>Associativity of multiplication is overall less volatile, since the largest variations are handled in the exponent.</p>
+<p>Multiplication is less volatile, but trailing bits can still be lost.</p>
 <p>The fractional part can only increase the exponent, and at most only one bit is lost: (1 &lt;= 1.xxx * 1.xxx &lt; 4)</p>
-<p>But it is still revelant, and trailing bits can be lost, as seen in the example here.</p>
-<p>Note however that multiplication of the exponent 2^{exp} is a pure integer operation and is a reversible operation, up to over/underflow. (It also just happens to also manipulate the {frac}).</p>
+<ul>
+<li>NOTE: Exponents follow integer arithmetic, and are associative</li>
+</ul>
 </aside>
 </section>
 
@@ -342,7 +356,11 @@ a \times (b \times c) &amp;\equiv 2.25 + 2^{-50}
 (x + y) + z \\
 x + (y + z)
 \end{aligned}\]</span></p>
-<p>Designed to optimize accuracy and performance.</p>
+<p>Select to optimize accuracy and performance.</p>
+<aside class="notes">
+<p>Accuracy: Preserve residuals</p>
+<p>Performance: Gather repeated values (for example)</p>
+</aside>
 </section>
 <section id="implementation" class="slide level2">
 <h2>Implementation</h2>
@@ -377,22 +395,26 @@ gfortran -Ofast ...              # Sets -fno-protect-parens</code></pre>
 
 <section id="transcendentals" class="title-slide slide level1">
 <h1>Transcendentals</h1>
-<p>How is <code>sin(1.0)</code> computed?</p>
-<ul>
-<li>GFortran typically uses <code>libc</code>. What if it changes?</li>
-<li>Intel</li>
-</ul>
+<p>How is <code>sin(x)</code> computed?</p>
+<p><span class="math display">\[f(48^\circ) = 2 \Omega \sin \left( \frac{48 \pi}{180} \right)\]</span></p>
+<pre class="bash"><code>glibc 2.22: 0.108381727637274115E-03 (3F1C695FE71A3FE4)
+      2.26: 0.108381727637274128E-03 (3F1C695FE71A3FE5)</code></pre>
+<p>Other compilers may not even use libm!</p>
 </section>
 
 <section id="higher-order-powers" class="title-slide slide level1">
 <h1>Higher order powers</h1>
 <p>How to evaluate <span class="math inline">\(z^6\)</span>?</p>
-<p>Compilers may translate to this:</p>
-<pre><code>z6 = exp(6. * ln(z))   </code></pre>
+<p>These forms are ambiguous:</p>
+<pre class="fortran" data-trim=""><code>z6 = z * z * z * z * z * z</code></pre>
+<p>Compilers may use <code>pow()</code>, also ambiguous.</p>
 <p>We recommend:</p>
 <pre><code>z3 = z * z * z
 z6 = z3 * z3</code></pre>
 <p>(Quiz: Why not <code>(z * z) * z</code>?)</p>
+<aside class="notes">
+<p><code>pow()</code> is likely to be implementation dependent.</p>
+</aside>
 </section>
 
 <section id="vectorization-invariance" class="title-slide slide level1">
@@ -400,25 +422,41 @@ z6 = z3 * z3</code></pre>
 <p>TODO: - Expressions ought to give identical answers for SSE and AVX (for example) - Not anywhere close yet... - Also: We want to choose AVX-optimal parentheses</p>
 </section>
 
+<section>
 <section id="negative-zero" class="title-slide slide level1">
 <h1>Negative Zero</h1>
+<p>Although <code>-0 == 0</code>, bitcounts will differ.</p>
+<p><span class="math display">\[\begin{aligned}
+x \times 0 = 
+\begin{cases}
+    0 &amp; \text{if $x \leq 0$} \\
+   -0 &amp; \text{if $x &lt; 0$}
+\end{cases}
+\end{aligned}\]</span></p>
+<p><span class="math inline">\(0 \Leftrightarrow -0\)</span> transitions can indicate volatility.</p>
+<p>If all else fails: <code>-0. + 0. == 0.</code></p>
+<aside class="notes">
+<p>Challenge of -0: Identical to +0 for all practical purposes.</p>
+<p>Even if we detect a <code>-0</code>, it may be more serious in production.</p>
+<p>Examples of volatility:</p>
 <ul>
-<li>Treat seriously!</li>
-<li>Last resort: <span class="math inline">\(-0 * 0 = 0\)</span></li>
+<li>Incomplete initialization</li>
+<li>Incomplete rotation</li>
 </ul>
+<p>Issues in halos are not uncommon.</p>
+</aside>
 </section>
-
-<section>
-<section id="subroundoff" class="title-slide slide level1">
-<h1>Subroundoff</h1>
+<section id="subroundoff" class="slide level2">
+<h2>Subroundoff</h2>
 <p>Thickness-weighted mean:</p>
 <p><span class="math display">\[\overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i}\]</span></p>
 <p>What if all <span class="math inline">\(h_i = 0\)</span>? Use subroundoff:</p>
 <p><span class="math display">\[\overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i + h_\text{sub}}\]</span></p>
 <p><span class="math inline">\(h_\text{sub}\)</span> is small enough s.t. <span class="math inline">\(h_i + h_{sub} = h_i\)</span>.</p>
-</section>
-<section class="slide level2">
-
+<aside class="notes">
+<p>Not a bit reproducibility method, but relevant to how we manage such calculations.</p>
+<p>I think this relies on throttling of <span class="math inline">\(h_i\)</span> to "angstroms".</p>
+</aside>
 </section></section>
 <section id="associative-scaling" class="title-slide slide level1">
 <h1>Associative Scaling</h1>
@@ -467,11 +505,14 @@ h_t + h u_x + h v_y &amp;= 0 \\
 </tr>
 </tbody>
 </table>
+<aside class="notes">
+<p>Shallow water eqns, a lower dimensional ocean model.</p>
+</aside>
 </section>
 
 <section>
-<section id="dimensional-factors" class="title-slide slide level1">
-<h1>Dimensional factors</h1>
+<section id="mom6-dimensionality" class="title-slide slide level1">
+<h1>MOM6 Dimensionality</h1>
 <table>
 <thead>
 <tr class="header">
@@ -520,12 +561,20 @@ h_t + h u_x + h v_y &amp;= 0 \\
 <section class="slide level2">
 
 </section></section>
-<section id="field-rotation" class="title-slide slide level1">
-<h1>Field Rotation</h1>
-<p><img data-src="img/rotate_procedure.svg" style="width:50.0%" alt="image" /></p>
+<section id="rotational-test" class="title-slide slide level1">
+<h1>Rotational Test</h1>
+<p>TODO</p>
+<aside class="notes">
+<p>We call this an "index rotation" because even the coordinates are rotated.</p>
+<ul>
+<li>Fields, grid, topography are rotated</li>
+<li>Even "latitude" and "longitude" are rotated.</li>
+<li>(X, Y) and (U, V) refer to the first and second index, not physical directions.</li>
+</ul>
+<p>This is why I resist calling it a "solid body rotation".</p>
+</aside>
 </section>
 
-<section>
 <section id="index-rotation" class="title-slide slide level1">
 <h1>Index Rotation</h1>
 <table>
@@ -538,10 +587,27 @@ h_t + h u_x + h v_y &amp;= 0 \\
 </table>
 <p><img data-src="img/rotate_mem.svg" style="width:65.0%" alt="image" /></p>
 <aside class="notes">
-<p>I call it an "index rotation" here since there is no physical rotation of the system here.</p>
-<p>No physical rotation is ever applied to the system, neither the fields themselves nor the coordinates.</p>
-<p>What is being rotated is the index map of the fields.</p>
-<p>Everything here is rotated: the fields, the topographies, the forcings, even the coordinates. The net result is nothing is r</p>
+<p>Perhaps "rotation" is not the best term, since it is more like a reordering of the array.</p>
+<p>But I think it is accurate to call it a rotation of the index map, hence the term "index rotation".</p>
+</aside>
+</section>
+
+<section>
+<section id="applying-the-rotation" class="title-slide slide level1">
+<h1>Applying the Rotation</h1>
+<table>
+<tbody>
+<tr class="odd">
+<td><p><img data-src="img/rotate_procedure.svg" alt="image" /></p></td>
+<td><p>Read inputs on coupler grid</p>
+<p>Move to rotated MOM6 grid</p>
+<p>De-rotate fields sent back to coupler and output</p></td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>All rotations are handled internally.</p>
+<p>Users do not need to manually apply any rotations.</p>
 </aside>
 </section>
 <section id="rotation-invariance" class="slide level2">
@@ -586,10 +652,7 @@ beta_topo_y = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &amp;
 </tbody>
 </table>
 <aside class="notes">
-<ul>
-<li>Stencils should be rotationally invariant.</li>
-<li>Example 1</li>
-</ul>
+<p>Example: Interpolation from vertex to center point</p>
 <p>The ideal outcome is to construct the stencil in a rotationally invariant form.</p>
 <p>The first example will evaluate its terms in a different order after a quarter turn.</p>
 <p>The second form is rotationally invariant to any number of quarter turns.</p>

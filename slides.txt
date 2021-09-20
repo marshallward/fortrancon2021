@@ -13,27 +13,6 @@ Bit-reproducible methods for dimensional and rotational testing
    Introductory comments, written to slide notes
 
 
-Motivation
-==========
-
-* Forecasting / Climate
-
-* Reproducibility
-   - Chaotic dynamics: 1 ULP => O(1) changes
-   - Replication of forecasts
-   - Automated testing without doofy tolerances
-
-* MOM6 dynamcs
-   - Bryan-Cox foundations
-   - Layered Dynamics
-   - ALE / Lagrangian remapping
-
-* MOM6 test suite
-   - Verification by checksums
-      - Dynamics
-      - Diagnostics
-
-
 Global Modeling
 ===============
 
@@ -78,19 +57,6 @@ Regional Modeling
    - ...?
 
 
-Examples of MOM6
-================
-
-* Idealized process studies
-* GFDL: ESM4/CM4 coupled model (adcroft et al 2019, JAMES)
-* Ice-sheet ocean interactions
-* NCAR CESM3
-* Australia COSIMA (soon)
-* Fishery management
-* NOAA/NCEP CFS-v3 coupled seasonal
-* US Navy HYCOM successor
-
-
 Ocean Dynamics
 ==============
 
@@ -108,6 +74,17 @@ Layered Dynamics
 
 .. image:: img/mom6_vcoord.png
    :width: 75%
+
+
+Chaotic Dynamics
+================
+
+* Reproducibility
+   - Chaotic dynamics: 1 ULP => O(1) changes
+   - Replication of forecasts
+   - Automated testing without doofy tolerances
+
+TODO: Video showing evolution?
 
 
 Solution verification
@@ -163,6 +140,23 @@ Verification Testing
    - "Regression" test for reference code (e.g. ``main``)
 
 
+Verification Tests
+==================
+
+==========  =================================
+Test        Description
+==========  =================================
+grid        Symmetric/Asymmetric memory grids
+layout      1×1 and 2×1 domain decomposition
+restart     Restart at mid-run
+dimension   Dimensional scaling
+rotation    Index rotation
+repro       Optimized reproducible mode
+openmp      OpenMP (single-thread)
+nan         NaN array initialization
+==========  =================================
+
+
 Validation Testing
 ==================
 
@@ -175,6 +169,17 @@ Validation Testing
    - *Does* have reference answers
 
    - Very strict testing
+
+
+Production Runs
+===============
+
+Examples:
+* Ocean Only
+* Ice-Ocean
+* Coupled (Atmos-Ice-Ocean)
+
+Additional Fallback: Production runs within GFDL
 
 
 External Testing
@@ -221,8 +226,8 @@ What is :math:`10^{-16} + 1 - 1`?
 
 .. math::
 
-   (10^{-16} + 1) - 1 &= 0 \\
-   10^{-16} + (1 - 1) &\equiv 10^{-16}
+   (10^{-16} + 1) - 1 &\equiv 0 \\
+   10^{-16} + (1 - 1) &= 10^{-16}
 
 Residuals below ULP (:math:`2\times10^{-16}`) are lost.
 
@@ -290,7 +295,13 @@ Parentheses are *required*:
    (x + y) + z \\
    x + (y + z)
 
-Designed to optimize accuracy and performance.
+Select to optimize accuracy and performance.
+
+.. notes::
+
+   Accuracy: Preserve residuals
+
+   Performance: Gather repeated values (for example)
 
 
 Implementation
@@ -358,11 +369,18 @@ How to compute reproducible means or global sums?
 Transcendentals
 ===============
 
-How is ``sin(1.0)`` computed?
+How is ``sin(x)`` computed?
 
-* GFortran typically uses ``libc``.  What if it changes?
+.. math:: 
 
-* Intel 
+   f(48^\circ) = 2 \Omega \sin \left( \frac{48 \pi}{180} \right) 
+
+.. code:: bash
+
+   glibc 2.22: 0.108381727637274115E-03 (3F1C695FE71A3FE4)
+         2.26: 0.108381727637274128E-03 (3F1C695FE71A3FE5)
+
+Other compilers may not even use libm! 
 
 
 Higher order powers
@@ -370,9 +388,14 @@ Higher order powers
 
 How to evaluate :math:`z^6`?
 
-Compilers may translate to this::
+These forms are ambiguous:
 
-      z6 = exp(6. * ln(z))   
+.. code:: fortran
+   :data-trim:
+
+   z6 = z * z * z * z * z * z
+
+Compilers may use ``pow()``, also ambiguous.
 
 We recommend::
 
@@ -380,6 +403,10 @@ We recommend::
       z6 = z3 * z3
 
 (Quiz: Why not ``(z * z) * z``?)
+
+.. notes::
+
+   ``pow()`` is likely to be implementation dependent.
 
 
 Vectorization Invariance
@@ -394,13 +421,37 @@ TODO:
 Negative Zero
 =============
 
-* Treat seriously!
+Although ``-0 == 0``, bitcounts will differ.
 
-* Last resort: :math:`-0 * 0 = 0`
+.. math::
+
+   x \times 0 = 
+   \begin{cases}
+       0 & \text{if $x \leq 0$} \\
+      -0 & \text{if $x < 0$}
+   \end{cases}
+
+:math:`0 \Leftrightarrow -0` transitions can indicate volatility.
+
+If all else fails: ``-0. + 0. == 0.``
+
+.. notes::
+
+   Challenge of -0: Identical to +0 for all practical purposes.
+
+   Even if we detect a ``-0``, it may be more serious in production.
+
+   Examples of volatility:
+   
+   - Incomplete initialization
+
+   - Incomplete rotation
+
+   Issues in halos are not uncommon.
 
 
 Subroundoff
-===========
+-----------
 
 Thickness-weighted mean:
 
@@ -416,8 +467,13 @@ What if all :math:`h_i = 0`?  Use subroundoff:
 
 :math:`h_\text{sub}` is small enough s.t. :math:`h_i + h_{sub} = h_i`.
 
+.. notes::
 
-----
+   Not a bit reproducibility method, but relevant to how we manage such
+   calculations.
+
+   I think this relies on throttling of :math:`h_i` to "angstroms".
+
 
 Associative Scaling
 ===================
@@ -473,8 +529,12 @@ GFD Scaling
        * :math:`\left[ u, v \right] = L T^{-1}`
        * :math:`\left[ g \right] = L^2 T^{-2} H^{-1}`
 
+.. notes::
 
-Dimensional factors
+   Shallow water eqns, a lower dimensional ocean model.
+
+
+MOM6 Dimensionality
 ===================
 
 ===== =======  =================
@@ -495,12 +555,23 @@ J/kg  Q        Enthalpy
 
 ----
 
+Rotational Test
+===============
 
-Field Rotation
-==============
+TODO
 
-.. image:: img/rotate_procedure.svg
-   :width: 50%
+.. notes::
+
+   We call this an "index rotation" because even the coordinates are rotated.
+
+   - Fields, grid, topography are rotated
+
+   - Even "latitude" and "longitude" are rotated.
+
+   - (X, Y) and (U, V) refer to the first and second index, not physical
+     directions.
+   
+   This is why I resist calling it a "solid body rotation".
 
 
 Index Rotation
@@ -520,16 +591,31 @@ Index Rotation
 
 .. notes::
 
-   I call it an "index rotation" here since there is no physical rotation of
-   the system here.
+   Perhaps "rotation" is not the best term, since it is more like a reordering
+   of the array.
 
-   No physical rotation is ever applied to the system, neither the fields
-   themselves nor the coordinates.
+   But I think it is accurate to call it a rotation of the index map, hence the
+   term "index rotation".
 
-   What is being rotated is the index map of the fields.
 
-   Everything here is rotated: the fields, the topographies, the forcings, even
-   the coordinates.  The net result is nothing is r
+Applying the Rotation
+=====================
+
+.. list-table::
+
+   - * .. image:: img/rotate_procedure.svg
+
+     * Read inputs on coupler grid
+
+       Move to rotated MOM6 grid
+
+       De-rotate fields sent back to coupler and output
+
+.. notes::
+
+   All rotations are handled internally.
+
+   Users do not need to manually apply any rotations.
 
 
 Rotation Invariance
@@ -550,7 +636,6 @@ Solutions must be invariant to **index rotation**, e.g.:
 Both *fields* and *coordinates* are remapped.
 
 Note: :math:`u` and :math:`v` are velocities along :math:`i` and :math:`j`!
-
 
 
 Rotational Consistency
@@ -595,9 +680,7 @@ Invariant stencils
 
 .. notes::
 
-   - Stencils should be rotationally invariant.
-
-   - Example 1  
+   Example: Interpolation from vertex to center point
 
    The ideal outcome is to construct the stencil in a rotationally invariant
    form.
