@@ -10,9 +10,9 @@ Dimensional and Rotational Testing of MOM6
    - Robert Hallberg
    - **Marshall Ward**
    - Alistair Adcroft
-:description: A one-line summary of the presentation.
+:description: An overview of MOM6 bit reproducibility methods.
 :date: 2021-09-23
-:url: https://marshallward.org/fortrancon2021.html
+:url: https://marshallward.org/fortrancon2021/index.html
 :preface:
    Introductory comments, written to slide notes
 
@@ -21,7 +21,6 @@ Global Modeling
 ===============
 
 .. image:: media/mom6_relvort.mp4
-   :poster: img/mom6_relvort_title.png
    :width: 85%
 
 .. notes::
@@ -128,12 +127,8 @@ Lagrangian Remap
 Chaotic Dynamics
 ================
 
-* Reproducibility
-   - Chaotic dynamics: 1 ULP => O(1) changes
-   - Replication of forecasts
-   - Automated testing without doofy tolerances
-
-TODO: Video showing evolution?
+.. figure:: media/pv.mp4
+   :target: https://www.youtube.com/watch?v=buI6mKzkbs0
 
 
 Motivation
@@ -141,11 +136,11 @@ Motivation
 
 * Accurate preservation of tracers
 
-* Climate simulations run for decades, centuries
+* Sustain long simulations over decades, centuries
 
-* Residual noise is certain to cause deviations
+* Residual noise can cause chaotic growth
 
-* Operations demand robust testing
+* Operational work needs robust testing
 
 Reproducible floating point arithmetic is essential
 
@@ -214,10 +209,13 @@ layout      1×1 and 2×1 domain decomposition
 restart     Restart at mid-run
 dimension   Dimensional scaling
 rotation    Index rotation
-repro       Optimized reproducible mode
 openmp      OpenMP (single-thread)
-nan         NaN array initialization
 ==========  =================================
+
+.. removed
+
+   repro       Optimized reproducible mode
+   nan         NaN array initialization
 
 
 Validation Testing
@@ -237,12 +235,17 @@ Validation Testing
 Production Runs
 ===============
 
-Examples:
-* Ocean Only
-* Ice-Ocean
-* Coupled (Atmos-Ice-Ocean)
+Idealized and production configs (incl. publications)
 
-Additional Fallback: Production runs within GFDL
+* Ocean-only
+
+* Ocean - Sea Ice
+
+* Coupled (Atmosphere - Sea Ice - Ocean)
+
+Final Evaluation:
+
+* Active GFDL development models
 
 
 External Testing
@@ -253,7 +256,33 @@ External Testing
 
 .. notes::
 
-   TODO: Need to add NASA...
+   Merge to the ``main`` branch:
+
+   Code is synced across labs periodically
+
+   Other labs design their own regression suite
+
+   Any regressions are resolved collaboratively
+
+   We also have bi-weekly meetings and keep in touch regularly
+
+
+Testing Summary
+===============
+
+* Automated Verification Tests
+
+  - Small, designed to run on any system
+
+* Regression Testing
+
+  - 61 tests, up to 500 cores, specialized facility
+
+* Internal validation
+
+  - Active production runs
+
+* Cross-site review
 
 
 Floating Point Review
@@ -618,7 +647,7 @@ Horizontal Rotation
 
 Fields, forcings, coordinates, are rotated.
 
-But ``(x,y)`` and ``(u,v)`` mean "along first/second index".
+But ``(x,y)`` and ``(u,v)`` align to first/second index.
 
 .. notes::
 

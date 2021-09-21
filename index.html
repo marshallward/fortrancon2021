@@ -47,7 +47,7 @@
 
     <footer style="font-size: 1pc; position: absolute; bottom: 2%; left: 2%;">
       <!-- code>https://marshallward.org/mom6vv</code> -->
-      <code><p><a href="https://marshallward.org/fortrancon2021.html">https://marshallward.org/fortrancon2021.html</a></p></code>
+      <code><p><a href="https://marshallward.org/fortrancon2021/index.html">https://marshallward.org/fortrancon2021/index.html</a></p></code>
     </footer>
 
     <div class="slides">
@@ -188,27 +188,18 @@ p_z &amp;= -g \rho \\
 
 <section id="chaotic-dynamics" class="title-slide slide level1">
 <h1>Chaotic Dynamics</h1>
-<ul>
-<li><dl>
-<dt>Reproducibility</dt>
-<dd><ul>
-<li>Chaotic dynamics: 1 ULP =&gt; O(1) changes</li>
-<li>Replication of forecasts</li>
-<li>Automated testing without doofy tolerances</li>
-</ul>
-</dd>
-</dl></li>
-</ul>
-<p>TODO: Video showing evolution?</p>
+<figure>
+<video data-src="media/pv.mp4" controls=""><a href="media/pv.mp4">Video</a></video>
+</figure>
 </section>
 
 <section id="motivation" class="title-slide slide level1">
 <h1>Motivation</h1>
 <ul>
 <li>Accurate preservation of tracers</li>
-<li>Climate simulations run for decades, centuries</li>
-<li>Residual noise is certain to cause deviations</li>
-<li>Operations demand robust testing</li>
+<li>Sustain long simulations over decades, centuries</li>
+<li>Residual noise can cause chaotic growth</li>
+<li>Operational work needs robust testing</li>
 </ul>
 <p>Reproducible floating point arithmetic is essential</p>
 </section>
@@ -290,16 +281,8 @@ h-point: ocean_model-h
 <td>Index rotation</td>
 </tr>
 <tr class="even">
-<td>repro</td>
-<td>Optimized reproducible mode</td>
-</tr>
-<tr class="odd">
 <td>openmp</td>
 <td>OpenMP (single-thread)</td>
-</tr>
-<tr class="even">
-<td>nan</td>
-<td>NaN array initialization</td>
 </tr>
 </tbody>
 </table>
@@ -319,16 +302,47 @@ h-point: ocean_model-h
 
 <section id="production-runs" class="title-slide slide level1">
 <h1>Production Runs</h1>
-<p>Examples: * Ocean Only * Ice-Ocean * Coupled (Atmos-Ice-Ocean)</p>
-<p>Additional Fallback: Production runs within GFDL</p>
+<p>Idealized and production configs (incl. publications)</p>
+<ul>
+<li>Ocean-only</li>
+<li>Ocean - Sea Ice</li>
+<li>Coupled (Atmosphere - Sea Ice - Ocean)</li>
+</ul>
+<p>Final Evaluation:</p>
+<ul>
+<li>Active GFDL development models</li>
+</ul>
 </section>
 
 <section id="external-testing" class="title-slide slide level1">
 <h1>External Testing</h1>
 <p><img data-src="img/gitrepos.svg" style="width:50.0%" alt="image" /></p>
 <aside class="notes">
-<p>TODO: Need to add NASA...</p>
+<p>Merge to the <code>main</code> branch:</p>
+<p>Code is synced across labs periodically</p>
+<p>Other labs design their own regression suite</p>
+<p>Any regressions are resolved collaboratively</p>
+<p>We also have bi-weekly meetings and keep in touch regularly</p>
 </aside>
+</section>
+
+<section id="testing-summary" class="title-slide slide level1">
+<h1>Testing Summary</h1>
+<ul>
+<li>Automated Verification Tests
+<ul>
+<li>Small, designed to run on any system</li>
+</ul></li>
+<li>Regression Testing
+<ul>
+<li>61 tests, up to 500 cores, specialized facility</li>
+</ul></li>
+<li>Internal validation
+<ul>
+<li>Active production runs</li>
+</ul></li>
+<li>Cross-site review</li>
+</ul>
 </section>
 
 <section id="floating-point-review" class="title-slide slide level1">
@@ -604,7 +618,7 @@ h_t + h u_x + h v_y &amp;= 0 \\
 <h1>Horizontal Rotation</h1>
 <p><img data-src="img/rotated_field.png" alt="image" /></p>
 <p>Fields, forcings, coordinates, are rotated.</p>
-<p>But <code>(x,y)</code> and <code>(u,v)</code> mean "along first/second index".</p>
+<p>But <code>(x,y)</code> and <code>(u,v)</code> align to first/second index.</p>
 <aside class="notes">
 <p>We call this an "index rotation" because even the coordinates are rotated.</p>
 <ul>
