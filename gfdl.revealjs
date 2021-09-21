@@ -277,9 +277,12 @@ $endif$
 $if(mathjax)$
         math: {
           mathjax: '$mathjaxurl$',
-          config: 'TeX-AMS_HTML-full',
+          config: 'TeX-AMS_MML_HTMLorMML',
           //mathjax: 'https://cdn.jsdelivr.net/gh/mathjax/mathjax@2.7.9/MathJax.js',
           //config: 'TeX-AMS_HTML-full',
+          //"HTML-CSS": {
+          //    preferredFont: "STIX",
+          //},
           //TeX: {
           //  inlineMath: [['\\(','\\)']],
           //  displayMath: [['\\[','\\]']],

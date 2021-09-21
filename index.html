@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
   <meta name="dcterms.date" content="2021-09-23">
-  <title>Bit-reproducible methods for dimensional and rotational testing</title>
+  <title>Dimensional and Rotational Testing of MOM6</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -59,7 +59,7 @@
          width: 30%"
          alt="NCI">
   </div-->
-  <h1 class="title">Bit-reproducible methods for dimensional and rotational testing</h1>
+  <h1 class="title">Dimensional and Rotational Testing of MOM6</h1>
   <p class="author" style="text-align: right;"><ul>
 <li>Robert Hallberg</li>
 <li><strong>Marshall Ward</strong></li>
@@ -114,7 +114,7 @@
 </dd>
 <dt>Things you cannot see</dt>
 <dd><ul>
-<li>fast very large scale tidal waves</li>
+<li>very fast, very large scale, tidal waves</li>
 <li>Meridional overturning circulation</li>
 </ul>
 </dd>
@@ -135,20 +135,55 @@
 </aside>
 </section>
 
+<section>
 <section id="ocean-dynamics" class="title-slide slide level1">
 <h1>Ocean Dynamics</h1>
+<p><img data-src="img/ocn_finite_volume.png" alt="image" /></p>
+<aside class="notes">
+<ul>
+<li><p><em>Very strong</em> parallels to atmosphere dynamics</p>
+<ul>
+<li>Ocean is like an "upside down atmosphere"</li>
+</ul></li>
+<li><p>Primarily finite volume:</p>
+<ul>
+<li>Momentum balance ("newton's law")</li>
+<li>Hydrostatic balance =&gt; No elliptic PDEs (horizontally)</li>
+<li>Advection of heat, salt, biomass, etc</li>
+<li>Usually Boussinesq (volume-conserving)</li>
+<li>Coriolis force is a major driver</li>
+</ul></li>
+<li><p>External forcing (heat, precip, wind)</p>
+<blockquote>
+<p>Sometimes prescribed, sometimes from another model</p>
+</blockquote></li>
+<li><p>Many "submodels":</p>
+<ul>
+<li>"LES"-like parameterizations</li>
+<li>Complex vertical mixing</li>
+<li>Boundary layers in surface, shelf</li>
+</ul></li>
+</ul>
+</aside>
+</section>
+<section id="ocean-dynamics-1" class="slide level2">
+<h2>Ocean Dynamics</h2>
 <p><span class="math display">\[\begin{aligned}
 \frac{D\mathbf{u}}{Dt} + f \hat{z} \times \mathbf{u} &amp;= -\nabla p + \mathcal{F} \\
 p_z &amp;= -g \rho \\
-\frac{D\phi}{Dt} &amp;= 0 \\
+\frac{D\phi}{Dt} &amp;= \mathcal{F}_\phi \\
 \nabla \cdot \mathbf{u} + w_z &amp;= 0 \\
 \rho &amp;= f(p, T, S, ...)
 \end{aligned}\]</span></p>
-</section>
-
+</section></section>
 <section id="layered-dynamics" class="title-slide slide level1">
 <h1>Layered Dynamics</h1>
 <p><img data-src="img/mom6_vcoord.png" style="width:75.0%" alt="image" /></p>
+</section>
+
+<section id="lagrangian-remap" class="title-slide slide level1">
+<h1>Lagrangian Remap</h1>
+<p><img data-src="img/lagrange_remap.png" alt="image" /></p>
 </section>
 
 <section id="chaotic-dynamics" class="title-slide slide level1">
@@ -165,6 +200,17 @@ p_z &amp;= -g \rho \\
 </dl></li>
 </ul>
 <p>TODO: Video showing evolution?</p>
+</section>
+
+<section id="motivation" class="title-slide slide level1">
+<h1>Motivation</h1>
+<ul>
+<li>Accurate preservation of tracers</li>
+<li>Climate simulations run for decades, centuries</li>
+<li>Residual noise is certain to cause deviations</li>
+<li>Operations demand robust testing</li>
+</ul>
+<p>Reproducible floating point arithmetic is essential</p>
 </section>
 
 <section id="solution-verification" class="title-slide slide level1">
@@ -373,23 +419,19 @@ gfortran -Ofast ...              # Sets -fno-protect-parens</code></pre>
 </section></section>
 <section id="parallel-summation" class="title-slide slide level1">
 <h1>Parallel Summation</h1>
-<p>How to compute reproducible means or global sums?</p>
-<ul>
-<li><p>Enforce ordering</p>
-<p><span class="math display">\[\sum{\phi} = (\phi_1 + (\phi_2 + ( \phi_3 + ... )))\]</span></p></li>
-<li><p>Fixed-precision arithmetic</p>
-<p><a href="https://doi.org/10.1016/j.parco.2014.04.007"><img data-src="img/fixedprec.svg" alt="image" /></a></p></li>
-</ul>
+<p>Parentheses work, but can be problematic:</p>
+<p><span class="math display">\[\sum{\phi} = (\phi_1 + (\phi_2 + ( \phi_3 + ... )))\]</span></p>
+<p>We recommend fixed-precision summation:</p>
+<p><a href="https://doi.org/10.1016/j.parco.2014.04.007"><img data-src="img/fixedprec.svg" alt="image" /></a></p>
+<p>Absolutely <em>NO</em> <code>sum()</code> calls!</p>
 <aside class="notes">
-<p>So paretheses are effective to control short numbers of mathematical operations, but how about large numbers of sums which are not necessarily known?</p>
-<p>Such as, say, the total mass or energy when your solution is distributed over many CPUs or MPI ranks?</p>
-<p>The straightforward solution is perhaps to just add the numbers in a predictable order. But some of the problems:</p>
+<p>Parentheses are OK for cumulant sums, but there are problems:</p>
 <ul>
-<li>we would need to gather all of the numbers before starting the sum</li>
-<li>Large numbers of sums have the potential to create cumulant roundoff errors.</li>
+<li>Must gather to one rank/thread before summing</li>
+<li>Cumulant errors depend on order, threaten accuracy</li>
 </ul>
-<p>A strong alternative (used in MOM6) is to use a fixed-precision arithmetic represented over multiple bins...</p>
-<p>(TODO)</p>
+<p>Cumulant sums over multiple bins resolve these issues.</p>
+<p>Hallberg and Adcroft, 2014: An Order-invariant Real-to-Integer Conversion Sum. Parallel Computing, 40(5-6), <a href="DOI:10.1016/j.parco.2014.04.007">DOI:10.1016/j.parco.2014.04.007</a></p>
 </aside>
 </section>
 
@@ -407,7 +449,7 @@ gfortran -Ofast ...              # Sets -fno-protect-parens</code></pre>
 <p>How to evaluate <span class="math inline">\(z^6\)</span>?</p>
 <p>These forms are ambiguous:</p>
 <pre class="fortran" data-trim=""><code>z6 = z * z * z * z * z * z</code></pre>
-<p>Compilers may use <code>pow()</code>, also ambiguous.</p>
+<p>Compilers may use libm <code>pow()</code>, also ambiguous.</p>
 <p>We recommend:</p>
 <pre><code>z3 = z * z * z
 z6 = z3 * z3</code></pre>
@@ -415,11 +457,6 @@ z6 = z3 * z3</code></pre>
 <aside class="notes">
 <p><code>pow()</code> is likely to be implementation dependent.</p>
 </aside>
-</section>
-
-<section id="vectorization-invariance" class="title-slide slide level1">
-<h1>Vectorization Invariance</h1>
-<p>TODO: - Expressions ought to give identical answers for SSE and AVX (for example) - Not anywhere close yet... - Also: We want to choose AVX-optimal parentheses</p>
 </section>
 
 <section>
@@ -467,6 +504,10 @@ x \times 0 =
 <p><span class="math display">\[2^N \times \phi \times 2^{-N} \equiv \phi\]</span></p>
 <aside class="notes">
 <p>... up to over/underflow of the exponent</p>
+<ul>
+<li>Fixed-precision sums must be unscaled to avoid over/underflow</li>
+<li>Must un/rescale for external libraries (e.g. TEOS, CVMix)</li>
+</ul>
 </aside>
 </section>
 
@@ -510,7 +551,6 @@ h_t + h u_x + h v_y &amp;= 0 \\
 </aside>
 </section>
 
-<section>
 <section id="mom6-dimensionality" class="title-slide slide level1">
 <h1>MOM6 Dimensionality</h1>
 <table>
@@ -556,14 +596,15 @@ h_t + h u_x + h v_y &amp;= 0 \\
 </table>
 <aside class="notes">
 <p>The currently tracked units are shown in this table.</p>
+<p>Salinity is a potential scaling</p>
 </aside>
 </section>
-<section class="slide level2">
 
-</section></section>
-<section id="rotational-test" class="title-slide slide level1">
-<h1>Rotational Test</h1>
-<p>TODO</p>
+<section id="horizontal-rotation" class="title-slide slide level1">
+<h1>Horizontal Rotation</h1>
+<p><img data-src="img/rotated_field.png" alt="image" /></p>
+<p>Fields, forcings, coordinates, are rotated.</p>
+<p>But <code>(x,y)</code> and <code>(u,v)</code> mean "along first/second index".</p>
 <aside class="notes">
 <p>We call this an "index rotation" because even the coordinates are rotated.</p>
 <ul>
@@ -680,7 +721,12 @@ end subroutine advect_tracer</code></pre>
 
 <section id="summary" class="title-slide slide level1">
 <h1>Summary</h1>
-<p>TODO</p>
+<p>Methods for bit reproducibility:</p>
+<ul>
+<li>Use parentheses for arithmetic operations</li>
+<li>Avoid ambiguous intrinsics: <code>sum()</code>, <code>sin()</code>, ...</li>
+</ul>
+<p>Testing</p>
 </section>
     </div>
   </div>
@@ -701,9 +747,12 @@ end subroutine advect_tracer</code></pre>
         history: true,
         math: {
           mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js',
-          config: 'TeX-AMS_HTML-full',
+          config: 'TeX-AMS_MML_HTMLorMML',
           //mathjax: 'https://cdn.jsdelivr.net/gh/mathjax/mathjax@2.7.9/MathJax.js',
           //config: 'TeX-AMS_HTML-full',
+          //"HTML-CSS": {
+          //    preferredFont: "STIX",
+          //},
           //TeX: {
           //  inlineMath: [['\\(','\\)']],
           //  displayMath: [['\\[','\\]']],

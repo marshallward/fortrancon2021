@@ -1,6 +1,10 @@
-===============================================================
-Bit-reproducible methods for dimensional and rotational testing
-===============================================================
+.. ===============================================================
+   Bit-reproducible methods for dimensional and rotational testing
+   ===============================================================
+
+==========================================
+Dimensional and Rotational Testing of MOM6
+==========================================
 
 :authors:
    - Robert Hallberg
@@ -17,6 +21,7 @@ Global Modeling
 ===============
 
 .. image:: media/mom6_relvort.mp4
+   :poster: img/mom6_relvort_title.png
    :width: 85%
 
 .. notes::
@@ -38,7 +43,7 @@ Global Modeling
       - Tropical storms (from atm) 
 
    Things you cannot see
-      - fast very large scale tidal waves
+      - very fast, very large scale, tidal waves
       - Meridional overturning circulation
 
 
@@ -60,11 +65,47 @@ Regional Modeling
 Ocean Dynamics
 ==============
 
+.. image:: img/ocn_finite_volume.png
+
+.. notes::
+
+   - *Very strong* parallels to atmosphere dynamics
+   
+      - Ocean is like an "upside down atmosphere"
+
+   - Primarily finite volume:
+
+      - Momentum balance ("newton's law")
+
+      - Hydrostatic balance => No elliptic PDEs (horizontally)
+
+      - Advection of heat, salt, biomass, etc
+
+      - Usually Boussinesq (volume-conserving)
+
+      - Coriolis force is a major driver
+
+   - External forcing (heat, precip, wind)
+
+      Sometimes prescribed, sometimes from another model
+
+   - Many "submodels":
+
+      - "LES"-like parameterizations
+
+      - Complex vertical mixing
+
+      - Boundary layers in surface, shelf
+
+
+Ocean Dynamics
+--------------
+
 .. math::
 
    \frac{D\mathbf{u}}{Dt} + f \hat{z} \times \mathbf{u} &= -\nabla p + \mathcal{F} \\
    p_z &= -g \rho \\
-   \frac{D\phi}{Dt} &= 0 \\
+   \frac{D\phi}{Dt} &= \mathcal{F}_\phi \\
    \nabla \cdot \mathbf{u} + w_z &= 0 \\
    \rho &= f(p, T, S, ...)
 
@@ -76,6 +117,14 @@ Layered Dynamics
    :width: 75%
 
 
+
+
+Lagrangian Remap
+================
+
+.. image:: img/lagrange_remap.png
+
+
 Chaotic Dynamics
 ================
 
@@ -85,6 +134,20 @@ Chaotic Dynamics
    - Automated testing without doofy tolerances
 
 TODO: Video showing evolution?
+
+
+Motivation
+==========
+
+* Accurate preservation of tracers
+
+* Climate simulations run for decades, centuries
+
+* Residual noise is certain to cause deviations
+
+* Operations demand robust testing
+
+Reproducible floating point arithmetic is essential
 
 
 Solution verification
@@ -328,42 +391,32 @@ Note: Fortran requires this!
 Parallel Summation
 ==================
 
-How to compute reproducible means or global sums?
+Parentheses work, but can be problematic:
 
-* Enforce ordering
+.. math::
 
-  .. math::
+   \sum{\phi} = (\phi_1 + (\phi_2 + ( \phi_3 + ... )))
 
-     \sum{\phi} = (\phi_1 + (\phi_2 + ( \phi_3 + ... )))
+We recommend fixed-precision summation:
 
-* Fixed-precision arithmetic
-
-  .. image:: img/fixedprec.svg
-     :target: https://doi.org/10.1016/j.parco.2014.04.007
-
-.. Hallberg and Adcroft, Parallel Computing (2014)
+.. image:: img/fixedprec.svg
+   :target: https://doi.org/10.1016/j.parco.2014.04.007
+   
+Absolutely *NO* ``sum()`` calls!
 
 .. notes::
 
-   So paretheses are effective to control short numbers of mathematical
-   operations, but how about large numbers of sums which are not necessarily
-   known?
 
-   Such as, say, the total mass or energy when your solution is distributed
-   over many CPUs or MPI ranks?
+   Parentheses are OK for cumulant sums, but there are problems:
 
-   The straightforward solution is perhaps to just add the numbers in a
-   predictable order.  But some of the problems:
+   - Must gather to one rank/thread before summing
 
-   - we would need to gather all of the numbers before starting the sum
+   - Cumulant errors depend on order, threaten accuracy
 
-   - Large numbers of sums have the potential to create cumulant roundoff
-     errors.
+   Cumulant sums over multiple bins resolve these issues. 
 
-   A strong alternative (used in MOM6) is to use a fixed-precision arithmetic
-   represented over multiple bins...
-
-   (TODO)
+   Hallberg and Adcroft, 2014: An Order-invariant Real-to-Integer Conversion
+   Sum.  Parallel Computing, 40(5-6), DOI:10.1016/j.parco.2014.04.007
 
 
 Transcendentals
@@ -395,7 +448,7 @@ These forms are ambiguous:
 
    z6 = z * z * z * z * z * z
 
-Compilers may use ``pow()``, also ambiguous.
+Compilers may use libm ``pow()``, also ambiguous.
 
 We recommend::
 
@@ -409,13 +462,12 @@ We recommend::
    ``pow()`` is likely to be implementation dependent.
 
 
-Vectorization Invariance
-========================
-
-TODO:
-- Expressions ought to give identical answers for SSE and AVX (for example)
-- Not anywhere close yet...
-- Also: We want to choose AVX-optimal parentheses
+.. Vectorization Invariance
+   ========================
+   
+   - Expressions ought to give identical answers for SSE and AVX (for example)
+   - Not anywhere close yet...
+   - Also: We want to choose AVX-optimal parentheses
 
 
 Negative Zero
@@ -495,6 +547,10 @@ Power-of-two multiplication is associative
 
    ... up to over/underflow of the exponent
 
+   - Fixed-precision sums must be unscaled to avoid over/underflow
+
+   - Must un/rescale for external libraries (e.g. TEOS, CVMix)
+
 
 Dimension Scaling
 =================
@@ -552,13 +608,17 @@ J/kg  Q        Enthalpy
 
    The currently tracked units are shown in this table.
 
+   Salinity is a potential scaling
 
-----
 
-Rotational Test
-===============
+Horizontal Rotation
+===================
 
-TODO
+.. image:: img/rotated_field.png
+
+Fields, forcings, coordinates, are rotated.
+
+But ``(x,y)`` and ``(u,v)`` mean "along first/second index".
 
 .. notes::
 
@@ -719,4 +779,10 @@ When all else fails, reorder the algorithm:
 Summary
 =======
 
-TODO
+Methods for bit reproducibility:
+
+* Use parentheses for arithmetic operations
+
+* Avoid ambiguous intrinsics: ``sum()``, ``sin()``, ...
+
+Testing 
