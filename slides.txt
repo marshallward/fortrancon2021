@@ -7,11 +7,12 @@ Dimensional and Rotational Testing of MOM6
 ==========================================
 
 :authors:
-   - Robert Hallberg
    - **Marshall Ward**
+   - Robert Hallberg
    - Alistair Adcroft
 :description: An overview of MOM6 bit reproducibility methods.
-:date: 2021-09-23
+:organization: NOAA-GFDL / Princeton U.
+:date: 23 Sept 2021
 :url: https://marshallward.org/fortrancon2021/index.html
 :preface:
    Will talk about (bit repro testing)
@@ -58,14 +59,14 @@ Global Modeling
 
 .. Regional Modeling
    =================
-   
+
    .. image:: media/mom6_regional.mp4
       :width: 90%
-   
+
    .. notes::
-   
+
       Say something interesting...
-   
+
       - Fisheries
       - Refineries (Gulf of Mexico)
       - ...?
@@ -110,23 +111,37 @@ Ocean Dynamics
 Layered Dynamics
 ================
 
-.. image:: img/mom6_vcoord.png
-   :width: 75%
+.. image:: media/gold.webm
+
+   .. notes::
+
+      Idealized study of the southern ocean
+
+      Actually uses an older iteration of the model
+
+      but illustrates the dynamic layers
 
 
+(c/o Adele Morrison, ANU)
 
 
 Lagrangian Remap
-================
+----------------
 
 .. image:: img/lagrange_remap.png
 
+.. notes::
 
-Chaotic Dynamics
-================
+   Briefly discuss the dynamic vertical coordinate
 
-.. figure:: media/pv.mp4
-   :target: https://www.youtube.com/watch?v=buI6mKzkbs0
+   Mention its role in preservation of tracers
+
+
+.. Chaotic Dynamics
+   ================
+
+   .. figure:: media/pv.mp4
+      :target: https://www.youtube.com/watch?v=buI6mKzkbs0
 
 
 Motivation
@@ -146,9 +161,7 @@ Reproducible floating point arithmetic is essential
 Solution verification
 =====================
 
-``ocean.stats``
-
-.. code:: bash
+.. code:: mathematica
 
   Step   Days   Energy/Mass [m2 s-2]     Mean Sea Level [m]   ...
 
@@ -162,7 +175,7 @@ Based on global metrics (energy, mass, etc)
 Diagnostic verification
 =======================
 
-``chksum_diag``::
+.. code:: mathematica
 
      u-point: ocean_model-u
        min  = -6.7187595818683776E-03  max  =  3.3480219779204019E-02
@@ -460,7 +473,7 @@ How is ``sin(x)`` computed?
 
    f(48^\circ) = 2 \Omega \sin \left( \frac{48 \pi}{180} \right)
 
-.. code:: bash
+.. code:: mathematica
 
    glibc 2.22: 0.108381727637274115E-03 (3F1C695FE71A3FE4)
          2.26: 0.108381727637274128E-03 (3F1C695FE71A3FE5)
@@ -486,7 +499,7 @@ We recommend::
       z3 = z * z * z
       z6 = z3 * z3
 
-(Quiz: Why not ``(z * z) * z``?)
+(Why not ``(z * z) * z``?)
 
 .. notes::
 
@@ -739,16 +752,17 @@ Rotational Consistency
 .. code:: fortran
 
    beta_topo_x = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &
-                 (G%bathyT(i+1,j)-G%bathyT(i,j)) * G%IdxCu(I,j)  &
-             / max(G%bathyT(i+1,j),G%bathyT(i,j), GV%H_subroundoff) &
-         +       (G%bathyT(i,j)-G%bathyT(i-1,j)) * G%IdxCu(I-1,j) &
-             / max(G%bathyT(i,j),G%bathyT(i-1,j), GV%H_subroundoff) )
-
+         (G%bathyT(i+1,j) - G%bathyT(i,j)) * G%IdxCu(I,j) &
+            / max(G%bathyT(i+1,j),G%bathyT(i,j), GV%H_subroundoff) &
+         + (G%bathyT(i,j) - G%bathyT(i-1,j)) * G%IdxCu(I-1,j) &
+            / max(G%bathyT(i,j),G%bathyT(i-1,j), GV%H_subroundoff) &
+   )
    beta_topo_y = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &
-                 (G%bathyT(i,j+1)-G%bathyT(i,j)) * G%IdyCv(i,J)  &
-             / max(G%bathyT(i,j+1),G%bathyT(i,j), GV%H_subroundoff) + &
-                 (G%bathyT(i,j)-G%bathyT(i,j-1)) * G%IdyCv(i,J-1) &
-             / max(G%bathyT(i,j),G%bathyT(i,j-1), GV%H_subroundoff) )
+         (G%bathyT(i,j+1) - G%bathyT(i,j)) * G%IdyCv(i,J) &
+             / max(G%bathyT(i,j+1), G%bathyT(i,j), GV%H_subroundoff) &
+         + (G%bathyT(i,j) - G%bathyT(i,j-1)) * G%IdyCv(i,J-1) &
+             / max(G%bathyT(i,j), G%bathyT(i,j-1), GV%H_subroundoff) &
+   )
 
 Index rotation ensures directional consistency
 
@@ -760,18 +774,28 @@ Invariant stencils
 
 .. image:: img/stencil.svg
    :class: float
+   :width: 25%
 
 .. list-table::
 
    * - .. image:: img/stencil1.svg
 
-     - :math:`\frac{1}{4} ( (\phi_A + \phi_B) + (\phi_C + \phi_D) )`
+     - :math:`\frac{1}{4} (
+            (\color{LightCoral}{\phi_A} + \color{LightCoral}{\phi_B})
+            + (\color{LightSkyBlue}{\phi_C} + \color{LightSkyBlue}{\phi_D})
+       )`
 
-       :math:`\frac{1}{4} ( (\phi_A + \phi_C) + (\phi_B + \phi_D) )`
+       :math:`\frac{1}{4} (
+            (\color{LightCoral}{\phi_A} + \color{LightSkyBlue}{\phi_D})
+            + (\color{LightCoral}{\phi_B} + \color{LightSkyBlue}{\phi_D})
+       )`
 
    * - .. image:: img/stencil2.svg
 
-     - :math:`\frac{1}{4} ( (\phi_A + \phi_D) + (\phi_B + \phi_C) )`
+     - :math:`\frac{1}{4} (
+            (\color{LightCoral}{\phi_A + \phi_D})
+            + (\color{LightSkyBlue}{\phi_B + \phi_C})
+       )`
 
 .. notes::
 
@@ -811,12 +835,8 @@ When all else fails, reorder the algorithm.
    control.
 
 
-Examples
-========
-
-
 Dimensional scaling example
----------------------------
+===========================
 
 https://github.com/NOAA-GFDL/MOM6/pull/921
 
@@ -835,16 +855,19 @@ https://github.com/NOAA-GFDL/MOM6/pull/921
 
 
 Rotational example
-------------------
+==================
 
 https://github.com/NOAA-GFDL/MOM6/pull/1050
 
 .. code:: fortran
 
    subroutine thickness_diffuse_full
-      !...
+      ! ...
+
       Work_u(I,j) = Work_u(I,j) + G_scale * (...)
+
       Work_v(i,J) = Work_v(i,J) - G_scale * (...)
+
       !...
    end subroutine thickness_diffuse_full
 

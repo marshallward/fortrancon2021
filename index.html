@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
-  <meta name="dcterms.date" content="2021-09-23">
   <title>Dimensional and Rotational Testing of MOM6</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -63,11 +62,12 @@
   </div-->
   <h1 class="title">Dimensional and Rotational Testing of MOM6</h1>
   <p class="author" style="text-align: right;"><ul>
-<li>Robert Hallberg</li>
 <li><strong>Marshall Ward</strong></li>
+<li>Robert Hallberg</li>
 <li>Alistair Adcroft</li>
 </ul></p>
-  <p class="date" style="text-align: right;">2021-09-23</p>
+  <p class="organization" style="text-align: right;"><p>NOAA-GFDL / Princeton U.</p></p>
+  <p class="date" style="text-align: right;">23 Sept 2021</p>
   <!-- Currently cannot add notes to a title slide, so have to do manually-->
   <aside class="notes">
     <p>Will talk about (bit repro testing)</p>
@@ -160,23 +160,20 @@
 </aside>
 </section>
 
+<section>
 <section id="layered-dynamics" class="title-slide slide level1">
 <h1>Layered Dynamics</h1>
-<p><img data-src="img/mom6_vcoord.png" style="width:75.0%" alt="image" /></p>
+<p><video data-src="media/gold.webm" controls=""><a href="media/gold.webm">image</a></video></p>
+<p>(c/o Adele Morrison, ANU)</p>
 </section>
-
-<section id="lagrangian-remap" class="title-slide slide level1">
-<h1>Lagrangian Remap</h1>
+<section id="lagrangian-remap" class="slide level2">
+<h2>Lagrangian Remap</h2>
 <p><img data-src="img/lagrange_remap.png" alt="image" /></p>
-</section>
-
-<section id="chaotic-dynamics" class="title-slide slide level1">
-<h1>Chaotic Dynamics</h1>
-<figure>
-<video data-src="media/pv.mp4" controls=""><a href="media/pv.mp4">Video</a></video>
-</figure>
-</section>
-
+<aside class="notes">
+<p>Briefly discuss the dynamic vertical coordinate</p>
+<p>Mention its role in preservation of tracers</p>
+</aside>
+</section></section>
 <section id="motivation" class="title-slide slide level1">
 <h1>Motivation</h1>
 <ul>
@@ -190,8 +187,7 @@
 
 <section id="solution-verification" class="title-slide slide level1">
 <h1>Solution verification</h1>
-<p><code>ocean.stats</code></p>
-<pre class="bash"><code>Step   Days   Energy/Mass [m2 s-2]     Mean Sea Level [m]   ...
+<pre class="mathematica"><code>Step   Days   Energy/Mass [m2 s-2]     Mean Sea Level [m]   ...
 
    0   0.00   7.2161166068132286E-27   1.8190E-12           ...
   12   0.50   2.7781004671136538E-04   1.1369E-12           ...
@@ -201,8 +197,7 @@
 
 <section id="diagnostic-verification" class="title-slide slide level1">
 <h1>Diagnostic verification</h1>
-<p><code>chksum_diag</code>:</p>
-<pre><code>u-point: ocean_model-u
+<pre class="mathematica"><code>u-point: ocean_model-u
   min  = -6.7187595818683776E-03  max  =  3.3480219779204019E-02
   mean =  1.1239682303793666E-04  bits = 21851
 v-point: ocean_model-v
@@ -442,7 +437,7 @@ gfortran -Ofast ...              # Sets -fno-protect-parens</code></pre>
 <h1>Transcendentals</h1>
 <p>How is <code>sin(x)</code> computed?</p>
 <p><span class="math display">\[f(48^\circ) = 2 \Omega \sin \left( \frac{48 \pi}{180} \right)\]</span></p>
-<pre class="bash"><code>glibc 2.22: 0.108381727637274115E-03 (3F1C695FE71A3FE4)
+<pre class="mathematica"><code>glibc 2.22: 0.108381727637274115E-03 (3F1C695FE71A3FE4)
       2.26: 0.108381727637274128E-03 (3F1C695FE71A3FE5)</code></pre>
 <p>Other compilers may not even use libm!</p>
 </section>
@@ -456,7 +451,7 @@ gfortran -Ofast ...              # Sets -fno-protect-parens</code></pre>
 <p>We recommend:</p>
 <pre><code>z3 = z * z * z
 z6 = z3 * z3</code></pre>
-<p>(Quiz: Why not <code>(z * z) * z</code>?)</p>
+<p>(Why not <code>(z * z) * z</code>?)</p>
 <aside class="notes">
 <p><code>pow()</code> is likely to be implementation dependent.</p>
 </aside>
@@ -689,33 +684,43 @@ h_t + h u_x + h v_y &amp;= 0 \\
 <section id="rotational-consistency" class="title-slide slide level1">
 <h1>Rotational Consistency</h1>
 <pre class="fortran"><code>beta_topo_x = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &amp;
-              (G%bathyT(i+1,j)-G%bathyT(i,j)) * G%IdxCu(I,j)  &amp;
-          / max(G%bathyT(i+1,j),G%bathyT(i,j), GV%H_subroundoff) &amp;
-      +       (G%bathyT(i,j)-G%bathyT(i-1,j)) * G%IdxCu(I-1,j) &amp;
-          / max(G%bathyT(i,j),G%bathyT(i-1,j), GV%H_subroundoff) )
-
+      (G%bathyT(i+1,j) - G%bathyT(i,j)) * G%IdxCu(I,j) &amp;
+         / max(G%bathyT(i+1,j),G%bathyT(i,j), GV%H_subroundoff) &amp;
+      + (G%bathyT(i,j) - G%bathyT(i-1,j)) * G%IdxCu(I-1,j) &amp;
+         / max(G%bathyT(i,j),G%bathyT(i-1,j), GV%H_subroundoff) &amp;
+)
 beta_topo_y = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &amp;
-              (G%bathyT(i,j+1)-G%bathyT(i,j)) * G%IdyCv(i,J)  &amp;
-          / max(G%bathyT(i,j+1),G%bathyT(i,j), GV%H_subroundoff) + &amp;
-              (G%bathyT(i,j)-G%bathyT(i,j-1)) * G%IdyCv(i,J-1) &amp;
-          / max(G%bathyT(i,j),G%bathyT(i,j-1), GV%H_subroundoff) )</code></pre>
+      (G%bathyT(i,j+1) - G%bathyT(i,j)) * G%IdyCv(i,J) &amp;
+          / max(G%bathyT(i,j+1), G%bathyT(i,j), GV%H_subroundoff) &amp;
+      + (G%bathyT(i,j) - G%bathyT(i,j-1)) * G%IdyCv(i,J-1) &amp;
+          / max(G%bathyT(i,j), G%bathyT(i,j-1), GV%H_subroundoff) &amp;
+)</code></pre>
 <p>Index rotation ensures directional consistency</p>
 </section>
 
 <section id="invariant-stencils" class="title-slide slide level1">
 <h1>Invariant stencils</h1>
 <p><span class="math inline">\(\phi^{(c)}_{i,j} = \frac{1}{4} (\phi_A + \phi_B + \phi_C + \phi_D)\)</span></p>
-<p><img data-src="img/stencil.svg" class="float float" alt="image" /></p>
+<p><img data-src="img/stencil.svg" class="float float" style="width:25.0%" alt="image" /></p>
 <table>
 <tbody>
 <tr class="odd">
 <td><p><img data-src="img/stencil1.svg" alt="image" /></p></td>
-<td><p><span class="math inline">\(\frac{1}{4} ( (\phi_A + \phi_B) + (\phi_C + \phi_D) )\)</span></p>
-<p><span class="math inline">\(\frac{1}{4} ( (\phi_A + \phi_C) + (\phi_B + \phi_D) )\)</span></p></td>
+<td><p><span class="math inline">\(\frac{1}{4} (
+     (\color{LightCoral}{\phi_A} + \color{LightCoral}{\phi_B})
+     + (\color{LightSkyBlue}{\phi_C} + \color{LightSkyBlue}{\phi_D})
+)\)</span></p>
+<p><span class="math inline">\(\frac{1}{4} (
+     (\color{LightCoral}{\phi_A} + \color{LightSkyBlue}{\phi_D})
+     + (\color{LightCoral}{\phi_B} + \color{LightSkyBlue}{\phi_D})
+)\)</span></p></td>
 </tr>
 <tr class="even">
 <td><img data-src="img/stencil2.svg" alt="image" /></td>
-<td><span class="math inline">\(\frac{1}{4} ( (\phi_A + \phi_D) + (\phi_B + \phi_C) )\)</span></td>
+<td><span class="math inline">\(\frac{1}{4} ( 
+     (\color{LightCoral}{\phi_A + \phi_D})
+     + (\color{LightSkyBlue}{\phi_B + \phi_C})
+)\)</span></td>
 </tr>
 </tbody>
 </table>
@@ -746,13 +751,8 @@ end subroutine advect_tracer</code></pre>
 </aside>
 </section>
 
-<section>
-<section id="examples" class="title-slide slide level1">
-<h1>Examples</h1>
-
-</section>
-<section id="dimensional-scaling-example" class="slide level2">
-<h2>Dimensional scaling example</h2>
+<section id="dimensional-scaling-example" class="title-slide slide level1">
+<h1>Dimensional scaling example</h1>
 <p><a href="https://github.com/NOAA-GFDL/MOM6/pull/921">https://github.com/NOAA-GFDL/MOM6/pull/921</a></p>
 <pre class="fortran"><code>Kd_lay(i,j,k-1) = Kd_lay(i,j,k-1) + 0.5**KS_extra(i,K)
 Kd_lay(i,j,k)   = Kd_lay(i,j,k)   + 0.5**KS_extra(i,K)</code></pre>
@@ -761,16 +761,21 @@ Kd_lay(i,j,k)   = Kd_lay(i,j,k)   + 0.5**KS_extra(i,K)</code></pre>
 <p>Actually discovered during implementation of the dimensional scaling, rather than detected by the dimensional scaling test. But it's the sort of thing that would have been found...</p>
 </aside>
 </section>
-<section id="rotational-example" class="slide level2">
-<h2>Rotational example</h2>
+
+<section id="rotational-example" class="title-slide slide level1">
+<h1>Rotational example</h1>
 <p><a href="https://github.com/NOAA-GFDL/MOM6/pull/1050">https://github.com/NOAA-GFDL/MOM6/pull/1050</a></p>
 <pre class="fortran"><code>subroutine thickness_diffuse_full
-   !...
+   ! ...
+
    Work_u(I,j) = Work_u(I,j) + G_scale * (...)
+
    Work_v(i,J) = Work_v(i,J) - G_scale * (...)
+
    !...
 end subroutine thickness_diffuse_full</code></pre>
-</section></section>
+</section>
+
 <section id="summary" class="title-slide slide level1">
 <h1>Summary</h1>
 <ul>
