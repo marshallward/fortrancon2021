@@ -37,9 +37,11 @@
               background-size: cover;">
 
     <!-- Original ratio: 10.04" x 7.08" -->
+    <!--
     <div style="height: 100vh; position: absolute; bottom: -50vh; left: -40vh">
       <img style="height: 100vh; width: 142vh" src="img/bg_globe.png">
     </div>
+    -->
 
     <header style="width: 10vh; position: absolute; bottom: 2vh; right: 2vh;">
       <img src="img/noaa_logo.png">
@@ -652,7 +654,6 @@ h_t + h u_x + h v_y &amp;= 0 \\
 </aside>
 </section>
 
-<section>
 <section id="applying-the-rotation" class="title-slide slide level1">
 <h1>Applying the Rotation</h1>
 <table>
@@ -670,14 +671,37 @@ h_t + h u_x + h v_y &amp;= 0 \\
 <p>Users do not need to manually apply any rotations.</p>
 </aside>
 </section>
-<section id="rotation-invariance" class="slide level2">
-<h2>Rotation Invariance</h2>
-<p><img data-src="img/mom_rotate.svg" class="float float" style="width:25.0%" alt="image" /></p>
-<p>Solutions must be invariant to <strong>index rotation</strong>, e.g.:</p>
-<p><span class="math display">\[\phi(i&#39;,j&#39;) = \phi(j, N-i)\]</span></p>
-<p>Both <em>fields</em> and <em>coordinates</em> are remapped.</p>
-<p>Note: <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> are velocities along <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>!</p>
-</section></section>
+
+<section id="rotational-pairs" class="title-slide slide level1">
+<h1>Rotational Pairs</h1>
+<p>For 90° rotations:</p>
+<table>
+<tbody>
+<tr class="odd">
+<td>Scalar</td>
+<td><span class="math inline">\(\phi(I,J) = \phi(j, N-i)\)</span></td>
+</tr>
+<tr class="even">
+<td>Array pair</td>
+<td><ul>
+<li><span class="math inline">\(\phi_u(I, J) = \phi_v(j, N-i)\)</span></li>
+<li><span class="math inline">\(\phi_v(I, J) = \phi_u(j, N-i)\)</span></li>
+</ul></td>
+</tr>
+<tr class="odd">
+<td>Vector</td>
+<td><ul>
+<li><span class="math inline">\(u(I, J) =  v(j, N-i)\)</span></li>
+<li><span class="math inline">\(v(I, J) = -u(j, N-i)\)</span></li>
+</ul></td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>More generally, a rotation is a reverse+transpose of the fields</p>
+</aside>
+</section>
+
 <section id="rotational-consistency" class="title-slide slide level1">
 <h1>Rotational Consistency</h1>
 <pre class="fortran"><code>beta_topo_x = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &amp;
@@ -732,7 +756,7 @@ beta_topo_y = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &amp;
       call advect_x(...)
    endif
 end subroutine advect_tracer</code></pre>
-<p>When all else fails, reorder the algorithm:</p>
+<p>When all else fails, reorder the algorithm.</p>
 <aside class="notes">
 <p>This is a last resort, but may be required if complexity has grown out of control.</p>
 </aside>
@@ -797,13 +821,14 @@ end subroutine thickness_diffuse_full</code></pre>
         // Push each slide change to the browser history
         history: true,
         math: {
-          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js',
-          config: 'TeX-AMS_MML_HTMLorMML',
-          //mathjax: 'https://cdn.jsdelivr.net/gh/mathjax/mathjax@2.7.9/MathJax.js',
-          //config: 'TeX-AMS_HTML-full',
-          //"HTML-CSS": {
-          //    preferredFont: "STIX",
-          //},
+          //mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js',
+          //config: 'TeX-AMS_MML_HTMLorMML',
+          mathjax: 'https://cdn.jsdelivr.net/gh/mathjax/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          "HTML-CSS": {
+              preferredFont: "Neo-Euler",
+              //preferredFont: "Asana-Math",
+          },
           //TeX: {
           //  inlineMath: [['\\(','\\)']],
           //  displayMath: [['\\[','\\]']],

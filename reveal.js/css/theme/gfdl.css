@@ -329,9 +329,13 @@ body {
 */
 
 .MathJax {
-    font-family: MathJax_SansSerif;
+    font-family: sans-serif;
+}
+
+.mi {
+    font-family: sans-serif;
 }
 
 .MathJax_Display {
-    font-family: MathJax_SansSerif;
+    font-family: sans-serif;
 }

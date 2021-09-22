@@ -49,7 +49,7 @@ Global Modeling
          - Gulf Stream (Eastern US), Kuroshio (Japan)
          - Agulhas (Africa) -> eddies
          - Benguela (S.America), EAC (Australia)
-      - Tropical storms (from atm) 
+      - Tropical storms (from atm)
 
    Things you cannot see
       - very fast, very large scale, tidal waves
@@ -79,7 +79,7 @@ Ocean Dynamics
 .. notes::
 
    - *Very strong* parallels to atmosphere dynamics
-   
+
       - Ocean is like an "upside down atmosphere"
 
    - Primarily finite volume:
@@ -180,11 +180,11 @@ Diagnostic verification
        min  = -6.7187595818683776E-03  max  =  3.3480219779204019E-02
        mean =  1.1239682303793666E-04  bits = 21851
      v-point: ocean_model-v
-       min  = -8.3469699425156359E-03  max  =  6.8420831486068704E-03 
+       min  = -8.3469699425156359E-03  max  =  6.8420831486068704E-03
        mean =  1.2076392816784489E-03  bits = 18606
      h-point: ocean_model-h
        min  =  9.9999999999999915E-04  max  =  5.6265092225099863E+02
-       mean =  3.6490088139048595E+02  bits = 18673 
+       mean =  3.6490088139048595E+02  bits = 18673
 
 Min, max, mean, bit count for every diagnostic
 
@@ -440,7 +440,7 @@ We recommend fixed-precision summation:
 
 .. image:: img/fixedprec.svg
    :target: https://doi.org/10.1016/j.parco.2014.04.007
-   
+
 Absolutely *NO* ``sum()`` calls!
 
 .. notes::
@@ -452,7 +452,7 @@ Absolutely *NO* ``sum()`` calls!
 
    - Cumulant errors depend on order, threaten accuracy
 
-   Cumulant sums over multiple bins resolve these issues. 
+   Cumulant sums over multiple bins resolve these issues.
 
    Hallberg and Adcroft, 2014: An Order-invariant Real-to-Integer Conversion
    Sum.  Parallel Computing, 40(5-6), DOI:10.1016/j.parco.2014.04.007
@@ -463,16 +463,16 @@ Transcendentals
 
 How is ``sin(x)`` computed?
 
-.. math:: 
+.. math::
 
-   f(48^\circ) = 2 \Omega \sin \left( \frac{48 \pi}{180} \right) 
+   f(48^\circ) = 2 \Omega \sin \left( \frac{48 \pi}{180} \right)
 
 .. code:: bash
 
    glibc 2.22: 0.108381727637274115E-03 (3F1C695FE71A3FE4)
          2.26: 0.108381727637274128E-03 (3F1C695FE71A3FE5)
 
-Other compilers may not even use libm! 
+Other compilers may not even use libm!
 
 
 Higher order powers
@@ -503,7 +503,7 @@ We recommend::
 
 .. Vectorization Invariance
    ========================
-   
+
    - Expressions ought to give identical answers for SSE and AVX (for example)
    - Not anywhere close yet...
    - Also: We want to choose AVX-optimal parentheses
@@ -516,7 +516,7 @@ Although ``-0 == 0``, bitcounts will differ.
 
 .. math::
 
-   x \times 0 = 
+   x \times 0 =
    \begin{cases}
        0 & \text{if $x \leq 0$} \\
       -0 & \text{if $x < 0$}
@@ -533,7 +533,7 @@ If all else fails: ``-0. + 0. == 0.``
    Even if we detect a ``-0``, it may be more serious in production.
 
    Examples of volatility:
-   
+
    - Incomplete initialization
 
    - Incomplete rotation
@@ -553,7 +553,7 @@ Thickness-weighted mean:
 What if all :math:`h_i = 0`?  Use subroundoff:
 
 .. math::
-   
+
    \overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i + h_\text{sub}}
 
 :math:`h_\text{sub}` is small enough s.t. :math:`h_i + h_{sub} = h_i`.
@@ -669,7 +669,7 @@ Rotate input fields, forcing, coordinates.
 
    - (X, Y) and (U, V) refer to the first and second index, not physical
      directions.
-   
+
    This is why I resist calling it a "solid body rotation".
 
 
@@ -717,24 +717,27 @@ Applying the Rotation
    Users do not need to manually apply any rotations.
 
 
-Rotation Invariance
--------------------
+Rotational Pairs
+================
 
-.. Again, no time to explain this, need to cut it
+For 90° rotations:
 
-.. image:: img/mom_rotate.svg
-   :width: 25%
-   :class: float
+.. list-table::
 
-Solutions must be invariant to **index rotation**, e.g.:
+   - * Scalar
+     * - :math:`\phi(I,J) = \phi(j, N-i)`
 
-.. math::
+   - * Array pair
+     * - :math:`\phi_u(I, J) = \phi_v(j, N-i)`
+       - :math:`\phi_v(I, J) = \phi_u(j, N-i)`
 
-   \phi(i',j') = \phi(j, N-i)
+   - * Vector
+     * - :math:`u(I, J) =  v(j, N-i)`
+       - :math:`v(I, J) = -u(j, N-i)`
 
-Both *fields* and *coordinates* are remapped.
+.. notes::
 
-Note: :math:`u` and :math:`v` are velocities along :math:`i` and :math:`j`!
+   More generally, a rotation is a reverse+transpose of the fields
 
 
 Rotational Consistency
@@ -807,7 +810,7 @@ Rotational ordering
       endif
    end subroutine advect_tracer
 
-When all else fails, reorder the algorithm:
+When all else fails, reorder the algorithm.
 
 .. notes::
 
@@ -868,6 +871,6 @@ Summary
 * Methods for bit reproducibility
 
   - Use parentheses for arithmetic operations.
-  
+
   - Avoid ambiguous intrinsics: ``sum()``, ``sin()``, ...
 
