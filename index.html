@@ -142,7 +142,6 @@
 </aside>
 </section>
 
-<section>
 <section id="ocean-dynamics" class="title-slide slide level1">
 <h1>Ocean Dynamics</h1>
 <p><img data-src="img/ocn_finite_volume.png" alt="image" /></p>
@@ -173,16 +172,7 @@
 </ul>
 </aside>
 </section>
-<section id="ocean-dynamics-1" class="slide level2">
-<h2>Ocean Dynamics</h2>
-<p><span class="math display">\[\begin{aligned}
-\frac{D\mathbf{u}}{Dt} + f \hat{z} \times \mathbf{u} &amp;= -\nabla p + \mathcal{F} \\
-p_z &amp;= -g \rho \\
-\frac{D\phi}{Dt} &amp;= \mathcal{F}_\phi \\
-\nabla \cdot \mathbf{u} + w_z &amp;= 0 \\
-\rho &amp;= f(p, T, S, ...)
-\end{aligned}\]</span></p>
-</section></section>
+
 <section id="layered-dynamics" class="title-slide slide level1">
 <h1>Layered Dynamics</h1>
 <p><img data-src="img/mom6_vcoord.png" style="width:75.0%" alt="image" /></p>
@@ -229,11 +219,11 @@ p_z &amp;= -g \rho \\
   min  = -6.7187595818683776E-03  max  =  3.3480219779204019E-02
   mean =  1.1239682303793666E-04  bits = 21851
 v-point: ocean_model-v
-  min  = -8.3469699425156359E-03  max  =  6.8420831486068704E-03 
+  min  = -8.3469699425156359E-03  max  =  6.8420831486068704E-03
   mean =  1.2076392816784489E-03  bits = 18606
 h-point: ocean_model-h
   min  =  9.9999999999999915E-04  max  =  5.6265092225099863E+02
-  mean =  3.6490088139048595E+02  bits = 18673 </code></pre>
+  mean =  3.6490088139048595E+02  bits = 18673</code></pre>
 <p>Min, max, mean, bit count for every diagnostic</p>
 </section>
 
@@ -355,8 +345,8 @@ h-point: ocean_model-h
 <section id="floating-point-review" class="title-slide slide level1">
 <h1>Floating Point Review</h1>
 <p><a href="https://commons.wikimedia.org/wiki/File:Float_example.svg"><img data-src="img/ieee_float_fmt.svg" alt="image" /></a></p>
-<p><span class="math display">\[\phi \equiv (-1)^{\color{yellow}s} \times 2^{\color{aquamarine}M}
-   \times (1 + {\color{pink}\alpha})\]</span></p>
+<p><span class="math display">\[\phi \equiv (-1)^\color{yellow}{s} \times 2^\color{aquamarine}{M}
+   \times (1 + \color{pink}{\alpha})\]</span></p>
 <ul>
 <li>Smallest fractional diff: <span class="math inline">\(2^{-52} \approx 2.2 \times 10^{-16}\)</span></li>
 <li>17 digits to uniquely specify a result</li>
@@ -403,13 +393,14 @@ s + 1 &amp;= 2 \\
 (a \times b) \times c &amp;\equiv 2.25 + 2^{-51} \\
 a \times (b \times c) &amp;\equiv 2.25 + 2^{-50}
 \end{aligned}\]</span></p>
-<p>(Actual results depend on rounding rules)</p>
 <aside class="notes">
-<p>Multiplication is less volatile, but trailing bits can still be lost.</p>
-<p>The fractional part can only increase the exponent, and at most only one bit is lost: (1 &lt;= 1.xxx * 1.xxx &lt; 4)</p>
+<p>Multiplication is less volatile:</p>
 <ul>
-<li>NOTE: Exponents follow integer arithmetic, and are associative</li>
+<li>Exponents are integer arithmetic -&gt; associative</li>
+<li>Only fractional part is non-associative</li>
+<li>frac can only increase (not decrease) ULP, dropping last bit</li>
 </ul>
+<p>Note: Actual results depend on rounding rules</p>
 </aside>
 </section>
 
@@ -437,6 +428,10 @@ gfortran -Ofast ...              # Sets -fno-protect-parens</code></pre>
 <p>Intel Fortran</p>
 <pre class="sh"><code>ifort -assume protect-parens     # Not default</code></pre>
 <p>Note: Fortran requires this!</p>
+<aside class="notes">
+<p>We generally avoid -fp-model style flags</p>
+<p>If anyone asks: J3/18-007r1, 10.1.5</p>
+</aside>
 </section></section>
 <section id="parallel-summation" class="title-slide slide level1">
 <h1>Parallel Summation</h1>
@@ -469,7 +464,7 @@ gfortran -Ofast ...              # Sets -fno-protect-parens</code></pre>
 <h1>Higher order powers</h1>
 <p>How to evaluate <span class="math inline">\(z^6\)</span>?</p>
 <p>These forms are ambiguous:</p>
-<pre class="fortran" data-trim=""><code>z6 = z * z * z * z * z * z</code></pre>
+<pre class="fortran"><code>z6 = z * z * z * z * z * z</code></pre>
 <p>Compilers may use libm <code>pow()</code>, also ambiguous.</p>
 <p>We recommend:</p>
 <pre><code>z3 = z * z * z
@@ -485,17 +480,17 @@ z6 = z3 * z3</code></pre>
 <h1>Negative Zero</h1>
 <p>Although <code>-0 == 0</code>, bitcounts will differ.</p>
 <p><span class="math display">\[\begin{aligned}
-x \times 0 = 
+x \times 0 =
 \begin{cases}
     0 &amp; \text{if $x \leq 0$} \\
    -0 &amp; \text{if $x &lt; 0$}
 \end{cases}
 \end{aligned}\]</span></p>
-<p><span class="math inline">\(0 \Leftrightarrow -0\)</span> transitions can indicate volatility.</p>
-<p>If all else fails: <code>-0. + 0. == 0.</code></p>
+<p><span class="math inline">\(0 \Leftrightarrow -0\)</span> transitions can detect unexpected values.</p>
+<p>But if all else fails: <code>-0. + 0. == 0.</code></p>
 <aside class="notes">
 <p>Challenge of -0: Identical to +0 for all practical purposes.</p>
-<p>Even if we detect a <code>-0</code>, it may be more serious in production.</p>
+<p>But a <code>-0</code> during testing may be a prelude to a more serious problem in production.</p>
 <p>Examples of volatility:</p>
 <ul>
 <li>Incomplete initialization</li>
@@ -537,9 +532,9 @@ x \times 0 =
 <p>Fields rescaled by dimensions should be invariant</p>
 <p><span class="math display">\[\begin{aligned}
 u^{n+1} &amp;= u^{n} +  \Delta t \times \mathcal{F} \\
-{\color{yellow}2^{L-T}} u^{n+1} &amp;= {\color{yellow}2^{L-T}} u^{n}
-   + {\color{yellow}2^T} \Delta t
-   \times {\color{yellow}2^{L - 2T}} \mathcal{F}
+\color{yellow}{2^{L-T}} u^{n+1} &amp;= \color{yellow}{2^{L-T}} u^{n}
+   + \color{yellow}{2^T} \Delta t
+   \times \color{yellow}{2^{L - 2T}} \mathcal{F}
 \end{aligned}\]</span></p>
 </section>
 
@@ -679,7 +674,9 @@ h_t + h u_x + h v_y &amp;= 0 \\
 <tbody>
 <tr class="odd">
 <td>Scalar</td>
-<td><span class="math inline">\(\phi(I,J) = \phi(j, N-i)\)</span></td>
+<td><ul>
+<li><span class="math inline">\(\phi(I,J) = \phi(j, N-i)\)</span></li>
+</ul></td>
 </tr>
 <tr class="even">
 <td>Array pair</td>

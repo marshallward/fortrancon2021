@@ -56,19 +56,19 @@ Global Modeling
       - Meridional overturning circulation
 
 
-Regional Modeling
-=================
-
-.. image:: media/mom6_regional.mp4
-   :width: 90%
-
-.. notes::
-
-   Say something interesting...
-
-   - Fisheries
-   - Refineries (Gulf of Mexico)
-   - ...?
+.. Regional Modeling
+   =================
+   
+   .. image:: media/mom6_regional.mp4
+      :width: 90%
+   
+   .. notes::
+   
+      Say something interesting...
+   
+      - Fisheries
+      - Refineries (Gulf of Mexico)
+      - ...?
 
 
 Ocean Dynamics
@@ -105,18 +105,6 @@ Ocean Dynamics
       - Complex vertical mixing
 
       - Boundary layers in surface, shelf
-
-
-Ocean Dynamics
---------------
-
-.. math::
-
-   \frac{D\mathbf{u}}{Dt} + f \hat{z} \times \mathbf{u} &= -\nabla p + \mathcal{F} \\
-   p_z &= -g \rho \\
-   \frac{D\phi}{Dt} &= \mathcal{F}_\phi \\
-   \nabla \cdot \mathbf{u} + w_z &= 0 \\
-   \rho &= f(p, T, S, ...)
 
 
 Layered Dynamics
@@ -303,8 +291,8 @@ Floating Point Review
 
 .. math::
 
-   \phi \equiv (-1)^{\color{yellow}s} \times 2^{\color{aquamarine}M}
-      \times (1 + {\color{pink}\alpha})
+   \phi \equiv (-1)^\color{yellow}{s} \times 2^\color{aquamarine}{M}
+      \times (1 + \color{pink}{\alpha})
 
 * Smallest fractional diff: :math:`2^{-52} \approx 2.2 \times 10^{-16}`
 
@@ -369,16 +357,17 @@ If :math:`a = b = 1.5`, and :math:`c = 1 + 2^{-52}`, then
    (a \times b) \times c &\equiv 2.25 + 2^{-51} \\
    a \times (b \times c) &\equiv 2.25 + 2^{-50}
 
-(Actual results depend on rounding rules)
-
 .. notes::
 
-   Multiplication is less volatile, but trailing bits can still be lost.
+   Multiplication is less volatile:
 
-   The fractional part can only increase the exponent, and at most only one bit
-   is lost:  (1 <= 1.xxx * 1.xxx < 4)
+   - Exponents are integer arithmetic -> associative
 
-   - NOTE: Exponents follow integer arithmetic, and are associative
+   - Only fractional part is non-associative
+
+   - frac can only increase (not decrease) ULP, dropping last bit
+
+   Note: Actual results depend on rounding rules
 
 
 Explicit Ordering
@@ -424,7 +413,11 @@ Intel Fortran
 
 Note: Fortran requires this!
 
-.. If anyone asks: J3/18-007r1, 10.1.5
+.. notes::
+
+   We generally avoid -fp-model style flags
+
+   If anyone asks: J3/18-007r1, 10.1.5
 
 
 Parallel Summation
@@ -483,7 +476,6 @@ How to evaluate :math:`z^6`?
 These forms are ambiguous:
 
 .. code:: fortran
-   :data-trim:
 
    z6 = z * z * z * z * z * z
 
@@ -522,15 +514,16 @@ Although ``-0 == 0``, bitcounts will differ.
       -0 & \text{if $x < 0$}
    \end{cases}
 
-:math:`0 \Leftrightarrow -0` transitions can indicate volatility.
+:math:`0 \Leftrightarrow -0` transitions can detect unexpected values.
 
-If all else fails: ``-0. + 0. == 0.``
+But if all else fails: ``-0. + 0. == 0.``
 
 .. notes::
 
    Challenge of -0: Identical to +0 for all practical purposes.
 
-   Even if we detect a ``-0``, it may be more serious in production.
+   But a ``-0`` during testing may be a prelude to a more serious problem in
+   production.
 
    Examples of volatility:
 
@@ -599,9 +592,9 @@ Fields rescaled by dimensions should be invariant
 .. math::
 
    u^{n+1} &= u^{n} +  \Delta t \times \mathcal{F} \\
-   {\color{yellow}2^{L-T}} u^{n+1} &= {\color{yellow}2^{L-T}} u^{n}
-      + {\color{yellow}2^T} \Delta t
-      \times {\color{yellow}2^{L - 2T}} \mathcal{F}
+   \color{yellow}{2^{L-T}} u^{n+1} &= \color{yellow}{2^{L-T}} u^{n}
+      + \color{yellow}{2^T} \Delta t
+      \times \color{yellow}{2^{L - 2T}} \mathcal{F}
 
 
 GFD Scaling
