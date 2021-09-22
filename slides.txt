@@ -14,7 +14,17 @@ Dimensional and Rotational Testing of MOM6
 :date: 2021-09-23
 :url: https://marshallward.org/fortrancon2021/index.html
 :preface:
-   Introductory comments, written to slide notes
+   Will talk about (bit repro testing)
+
+   Although I am presenting...
+
+   Robert Hallberg is responsible for many of the ideas here
+
+   Had the audacity to assert that this was achievable.
+
+   and fleshed them out with Alistair Adcroft, both at GFDL in Princeton.
+
+   I just came in at the end and implemented them.
 
 
 Global Modeling
@@ -645,9 +655,9 @@ Horizontal Rotation
 
 .. image:: img/rotated_field.png
 
-Fields, forcings, coordinates, are rotated.
+Rotate input fields, forcing, coordinates.
 
-But ``(x,y)`` and ``(u,v)`` align to first/second index.
+``(x,y)`` and ``(u,v)`` describe first and second index
 
 .. notes::
 
@@ -805,13 +815,59 @@ When all else fails, reorder the algorithm:
    control.
 
 
+Examples
+========
+
+
+Dimensional scaling example
+---------------------------
+
+https://github.com/NOAA-GFDL/MOM6/pull/921
+
+.. code:: fortran
+
+   Kd_lay(i,j,k-1) = Kd_lay(i,j,k-1) + 0.5**KS_extra(i,K)
+   Kd_lay(i,j,k)   = Kd_lay(i,j,k)   + 0.5**KS_extra(i,K)
+
+:math:`\ldots + \left(\tfrac{1}{2}\right)^{\kappa_S}`?
+
+.. notes::
+
+   Actually discovered during implementation of the dimensional scaling, rather
+   than detected by the dimensional scaling test.  But it's the sort of thing
+   that would have been found...
+
+
+Rotational example
+------------------
+
+https://github.com/NOAA-GFDL/MOM6/pull/1050
+
+.. code:: fortran
+
+   subroutine thickness_diffuse_full
+      !...
+      Work_u(I,j) = Work_u(I,j) + G_scale * (...)
+      Work_v(i,J) = Work_v(i,J) - G_scale * (...)
+      !...
+   end subroutine thickness_diffuse_full
+
+
+
 Summary
 =======
 
-Methods for bit reproducibility:
+* Bit reproducibility is essential, and achievable!
 
-* Use parentheses for arithmetic operations
+* Enables aggressive regression testing
 
-* Avoid ambiguous intrinsics: ``sum()``, ``sin()``, ...
+  - Dimensional consistency
 
-Testing 
+  - Rotationally symmetric solvers
+
+* Methods for bit reproducibility
+
+  - Use parentheses for arithmetic operations.
+  
+  - Avoid ambiguous intrinsics: ``sum()``, ``sin()``, ...
+

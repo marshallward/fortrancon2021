@@ -68,7 +68,12 @@
   <p class="date" style="text-align: right;">2021-09-23</p>
   <!-- Currently cannot add notes to a title slide, so have to do manually-->
   <aside class="notes">
-    <p>Introductory comments, written to slide notes</p>
+    <p>Will talk about (bit repro testing)</p>
+    <p>Although I am presenting...</p>
+    <p>Robert Hallberg is responsible for many of the ideas here</p>
+    <p>Had the audacity to assert that this was achievable.</p>
+    <p>and fleshed them out with Alistair Adcroft, both at GFDL in Princeton.</p>
+    <p>I just came in at the end and implemented them.</p>
   </aside>
 </section>
 
@@ -617,8 +622,8 @@ h_t + h u_x + h v_y &amp;= 0 \\
 <section id="horizontal-rotation" class="title-slide slide level1">
 <h1>Horizontal Rotation</h1>
 <p><img data-src="img/rotated_field.png" alt="image" /></p>
-<p>Fields, forcings, coordinates, are rotated.</p>
-<p>But <code>(x,y)</code> and <code>(u,v)</code> align to first/second index.</p>
+<p>Rotate input fields, forcing, coordinates.</p>
+<p><code>(x,y)</code> and <code>(u,v)</code> describe first and second index</p>
 <aside class="notes">
 <p>We call this an "index rotation" because even the coordinates are rotated.</p>
 <ul>
@@ -733,14 +738,46 @@ end subroutine advect_tracer</code></pre>
 </aside>
 </section>
 
+<section>
+<section id="examples" class="title-slide slide level1">
+<h1>Examples</h1>
+
+</section>
+<section id="dimensional-scaling-example" class="slide level2">
+<h2>Dimensional scaling example</h2>
+<p><a href="https://github.com/NOAA-GFDL/MOM6/pull/921">https://github.com/NOAA-GFDL/MOM6/pull/921</a></p>
+<pre class="fortran"><code>Kd_lay(i,j,k-1) = Kd_lay(i,j,k-1) + 0.5**KS_extra(i,K)
+Kd_lay(i,j,k)   = Kd_lay(i,j,k)   + 0.5**KS_extra(i,K)</code></pre>
+<p><span class="math inline">\(\ldots + \left(\tfrac{1}{2}\right)^{\kappa_S}\)</span>?</p>
+<aside class="notes">
+<p>Actually discovered during implementation of the dimensional scaling, rather than detected by the dimensional scaling test. But it's the sort of thing that would have been found...</p>
+</aside>
+</section>
+<section id="rotational-example" class="slide level2">
+<h2>Rotational example</h2>
+<p><a href="https://github.com/NOAA-GFDL/MOM6/pull/1050">https://github.com/NOAA-GFDL/MOM6/pull/1050</a></p>
+<pre class="fortran"><code>subroutine thickness_diffuse_full
+   !...
+   Work_u(I,j) = Work_u(I,j) + G_scale * (...)
+   Work_v(i,J) = Work_v(i,J) - G_scale * (...)
+   !...
+end subroutine thickness_diffuse_full</code></pre>
+</section></section>
 <section id="summary" class="title-slide slide level1">
 <h1>Summary</h1>
-<p>Methods for bit reproducibility:</p>
 <ul>
-<li>Use parentheses for arithmetic operations</li>
+<li>Bit reproducibility is essential, and achievable!</li>
+<li>Enables aggressive regression testing
+<ul>
+<li>Dimensional consistency</li>
+<li>Rotationally symmetric solvers</li>
+</ul></li>
+<li>Methods for bit reproducibility
+<ul>
+<li>Use parentheses for arithmetic operations.</li>
 <li>Avoid ambiguous intrinsics: <code>sum()</code>, <code>sin()</code>, ...</li>
+</ul></li>
 </ul>
-<p>Testing</p>
 </section>
     </div>
   </div>
