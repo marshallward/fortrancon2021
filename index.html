@@ -413,6 +413,7 @@ gfortran -Ofast ...              # Sets -fno-protect-parens</code></pre>
 <p>How to evaluate <span class="math inline">\(z^6\)</span>?</p>
 <p>These forms are ambiguous:</p>
 <pre class="fortran"><code>z6 = z * z * z * z * z * z</code></pre>
+<pre class="fortran"><code>z6 = z**6</code></pre>
 <p>Compilers may use libm <code>pow()</code>, also ambiguous.</p>
 <p>We recommend:</p>
 <pre><code>z3 = z * z * z

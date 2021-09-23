@@ -463,6 +463,10 @@ These forms are ambiguous:
 
    z6 = z * z * z * z * z * z
 
+.. code:: fortran
+
+   z6 = z**6
+
 Compilers may use libm ``pow()``, also ambiguous.
 
 We recommend::
