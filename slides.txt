@@ -106,22 +106,10 @@ Ocean Dynamics
    (c/o Adele Morrison, ANU)
 
 
-Lagrangian Remap
-----------------
-
-.. image:: img/lagrange_remap.png
-
-.. notes::
-
-   Briefly discuss the dynamic vertical coordinate
-
-   Mention its role in preservation of tracers
-
-
 Turbulent Dynamics
 ==================
 
-.. figure:: media/pv.mp4
+.. figure:: media/pv.webm
    :target: https://www.youtube.com/watch?v=buI6mKzkbs0
 
 
@@ -545,7 +533,7 @@ From the seawater equation of state:
 
    intz(m) = &
        g_Earth * dz * ((p0 + p_ave) * (I_Lzz * I_al0) - rho_ref_mks) &
-       - 2.0*eps * I_Rho * (lambda * I_al0**2) * eps2 * ( &
+       - 2.0 * eps * I_Rho * (lambda * I_al0**2) * eps2 * ( &
            C1_3 + eps2 * (0.2 + eps2 * (C1_7 + C1_9 * eps2)) &
        )
 
@@ -566,7 +554,7 @@ Power-of-two multiplication is associative
 
 .. math::
 
-   2^N \times \phi \times 2^{-N} \equiv \phi
+   2^\color{yellow}{N} \times \phi \times 2^\color{yellow}{-N} \equiv \phi
 
 This provides a basis for bitwise dimensional scaling.
 

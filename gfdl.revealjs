@@ -312,6 +312,7 @@ $endif$
           { src: '$revealjs-url$/plugin/notes/notes.js', async: true }
         ],
         plugins : [ RevealMath, RevealNotes, RevealHighlight],
+        pdfMaxPagesPerSlide: 1,
       });
     </script>
   $for(include-after)$

@@ -129,7 +129,6 @@
 </aside>
 </section>
 
-<section>
 <section id="ocean-dynamics" class="title-slide slide level1">
 <h1>Ocean Dynamics</h1>
 <p><img data-src="img/ocn_finite_volume.png" alt="image" /></p>
@@ -160,18 +159,11 @@
 </ul>
 </aside>
 </section>
-<section id="lagrangian-remap" class="slide level2">
-<h2>Lagrangian Remap</h2>
-<p><img data-src="img/lagrange_remap.png" alt="image" /></p>
-<aside class="notes">
-<p>Briefly discuss the dynamic vertical coordinate</p>
-<p>Mention its role in preservation of tracers</p>
-</aside>
-</section></section>
+
 <section id="turbulent-dynamics" class="title-slide slide level1">
 <h1>Turbulent Dynamics</h1>
 <figure>
-<video data-src="media/pv.mp4" controls=""><a href="media/pv.mp4">Video</a></video>
+<video data-src="media/pv.webm" controls=""><a href="media/pv.webm">Video</a></video>
 </figure>
 </section>
 
@@ -463,7 +455,7 @@ z6 = z3 * z3</code></pre>
 <p>From the seawater equation of state:</p>
 <pre class="fortran"><code>intz(m) = &amp;
     g_Earth * dz * ((p0 + p_ave) * (I_Lzz * I_al0) - rho_ref_mks) &amp;
-    - 2.0*eps * I_Rho * (lambda * I_al0**2) * eps2 * ( &amp;
+    - 2.0 * eps * I_Rho * (lambda * I_al0**2) * eps2 * ( &amp;
         C1_3 + eps2 * (0.2 + eps2 * (C1_7 + C1_9 * eps2)) &amp;
     )</code></pre>
 <p>Can we ensure expressions are dimensionally correct?</p>
@@ -475,7 +467,7 @@ z6 = z3 * z3</code></pre>
 <p><span class="math display">\[\phi \equiv (-1)^{\color{yellow}s} \times 2^{\color{yellow}M}
    \times (1 + {\color{yellow}\alpha})\]</span></p>
 <p>Power-of-two multiplication is associative</p>
-<p><span class="math display">\[2^N \times \phi \times 2^{-N} \equiv \phi\]</span></p>
+<p><span class="math display">\[2^\color{yellow}{N} \times \phi \times 2^\color{yellow}{-N} \equiv \phi\]</span></p>
 <p>This provides a basis for bitwise dimensional scaling.</p>
 <aside class="notes">
 <p>... up to over/underflow of the exponent</p>
@@ -884,6 +876,7 @@ end subroutine thickness_diffuse_full</code></pre>
           { src: './reveal.js/plugin/notes/notes.js', async: true }
         ],
         plugins : [ RevealMath, RevealNotes, RevealHighlight],
+        pdfMaxPagesPerSlide: 1,
       });
     </script>
     </body>
