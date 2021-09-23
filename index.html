@@ -81,8 +81,9 @@
 
 <section id="global-modeling" class="title-slide slide level1">
 <h1>Global Modeling</h1>
-<p><video autoplay loop data-src="media/mom6_relvort.mp4" style="width:85.0%" controls=""><a href="media/mom6_relvort.mp4">image</a></video></p>
+<p><a href="https://dx.doi.org/10.1029/2019MS001726"><video autoplay loop data-src="media/mom6_relvort.mp4" style="width:85.0%" controls=""><a href="media/mom6_relvort.mp4">image</a></video></a></p>
 <aside class="notes">
+<p>Sea surface relative vorticity</p>
 <dl>
 <dt>GFDL CM4 model:</dt>
 <dd><ul>
@@ -204,8 +205,8 @@ h-point: ocean_model-h
 </section>
 
 <section>
-<section id="verification-testing" class="title-slide slide level1">
-<h1>Verification Testing</h1>
+<section id="verification-suite" class="title-slide slide level1">
+<h1>Verification Suite</h1>
 <p><img data-src="img/mom_verify.svg" style="width:80.0%" alt="image" /></p>
 <aside class="notes">
 <ul>
@@ -302,6 +303,7 @@ h-point: ocean_model-h
 </aside>
 </section>
 
+<section>
 <section id="addition-associativity" class="title-slide slide level1">
 <h1>Addition Associativity</h1>
 <p>What is <span class="math inline">\(10^{-16} + 1 - 1\)</span>?</p>
@@ -316,9 +318,8 @@ h-point: ocean_model-h
 <p>Cancellation in the second summation shifts ULP, preserving 10^-16.</p>
 </aside>
 </section>
-
-<section id="floating-residual" class="title-slide slide level1">
-<h1>Floating residual</h1>
+<section id="floating-residual" class="slide level2">
+<h2>Floating residual</h2>
 <p>Let <span class="math inline">\(s = 1 + 2 \times 10^{-16}\)</span>. What is <span class="math inline">\((s + 1) - 1\)</span>?</p>
 <p><span class="math display">\[\begin{aligned}
 s + 1 &amp;= 2 \\
@@ -328,8 +329,7 @@ s + 1 &amp;= 2 \\
 <aside class="notes">
 <p>Nearly identical issue, but illustrates a 2x increase in ULP</p>
 </aside>
-</section>
-
+</section></section>
 <section id="multiplication-associativity" class="title-slide slide level1">
 <h1>Multiplication associativity</h1>
 <p>If <span class="math inline">\(a = b = 1.5\)</span>, and <span class="math inline">\(c = 1 + 2^{-52}\)</span>, then</p>

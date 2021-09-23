@@ -28,9 +28,12 @@ Global Modeling
 ===============
 
 .. image:: media/mom6_relvort.mp4
+   :target: https://dx.doi.org/10.1029/2019MS001726
    :width: 85%
 
 .. notes::
+
+   Sea surface relative vorticity
 
    GFDL CM4 model:
       - coupled to MOM6
@@ -160,8 +163,8 @@ Diagnostic verification
 Min, max, mean, bit count for every diagnostic
 
 
-Verification Testing
-====================
+Verification Suite
+==================
 
 .. image:: img/mom_verify.svg
    :width: 80%
@@ -300,7 +303,7 @@ Residuals below ULP (:math:`2\times10^{-16}`) are lost.
 
 
 Floating residual
-=================
+-----------------
 
 Let :math:`s = 1 + 2 \times 10^{-16}`.  What is :math:`(s + 1) - 1`?
 
