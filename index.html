@@ -81,7 +81,7 @@
 
 <section id="global-modeling" class="title-slide slide level1">
 <h1>Global Modeling</h1>
-<p><video data-src="media/mom6_relvort.mp4" style="width:85.0%" controls="" autoplay loop><a href="media/mom6_relvort.mp4">image</a></video></p>
+<p><video autoplay loop data-src="media/mom6_relvort.mp4" style="width:85.0%" controls=""><a href="media/mom6_relvort.mp4">image</a></video></p>
 <aside class="notes">
 <dl>
 <dt>GFDL CM4 model:</dt>
@@ -163,7 +163,7 @@
 <section id="turbulent-dynamics" class="title-slide slide level1">
 <h1>Turbulent Dynamics</h1>
 <figure>
-<video data-src="media/pv.webm" controls="" autoplay loop><a href="media/pv.webm">Video</a></video>
+<video autoplay loop data-src="media/pv.webm" controls=""><a href="media/pv.webm">Video</a></video>
 </figure>
 </section>
 
@@ -289,7 +289,7 @@ h-point: ocean_model-h
 <section id="floating-point-review" class="title-slide slide level1">
 <h1>Floating Point Review</h1>
 <p><a href="https://commons.wikimedia.org/wiki/File:Float_example.svg"><img data-src="img/ieee_float_fmt.svg" alt="image" /></a></p>
-<p><span class="math display">\[\phi \equiv (-1)^\color{yellow}{s} \times 2^\color{aquamarine}{M}
+<p><span class="math display">\[\phi = (-1)^\color{yellow}{s} \times 2^\color{aquamarine}{M}
    \times (1 + \color{pink}{\alpha})\]</span></p>
 <ul>
 <li>Smallest fractional diff: <span class="math inline">\(2^{-52} \approx 2.2 \times 10^{-16}\)</span></li>
@@ -464,10 +464,10 @@ z6 = z3 * z3</code></pre>
 <section id="associative-scaling" class="title-slide slide level1">
 <h1>Associative Scaling</h1>
 <p>Recall the floating point format</p>
-<p><span class="math display">\[\phi \equiv (-1)^{\color{yellow}s} \times 2^{\color{yellow}M}
+<p><span class="math display">\[\phi = (-1)^{\color{yellow}s} \times 2^{\color{yellow}M}
    \times (1 + {\color{yellow}\alpha})\]</span></p>
 <p>Power-of-two multiplication is associative</p>
-<p><span class="math display">\[2^\color{yellow}{N} \times \phi \times 2^\color{yellow}{-N} \equiv \phi\]</span></p>
+<p><span class="math display">\[2^\color{yellow}{N} \times \phi \times 2^\color{yellow}{-N} = \phi\]</span></p>
 <p>This provides a basis for bitwise dimensional scaling.</p>
 <aside class="notes">
 <p>... up to over/underflow of the exponent</p>
