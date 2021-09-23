@@ -70,10 +70,23 @@
   <p class="date" style="text-align: right;">23 Sept 2021</p>
   <!-- Currently cannot add notes to a title slide, so have to do manually-->
   <aside class="notes">
-    <p>Will talk about (bit repro testing)</p>
+    <p>Title has been trimmed down to fit on the slide</p>
+    <p>Will talk about the MOM6 ocean model</p>
+    <ul>
+    <li>specifically our method for producing and retaing bit-reproducible answers in an community development environment</li>
+    </ul>
+    <dl>
+    <dt>Will focus on two of the more novel tests:</dt>
+    <dd><ul>
+    <li>dimensional scaling</li>
+    <li>rotational invariance</li>
+    </ul>
+    </dd>
+    </dl>
+    <p>And will outline how we apply these tests in a bit-reproducible manner</p>
     <p>Although I am presenting...</p>
-    <p>Robert Hallberg is responsible for many of the ideas here</p>
-    <p>Had the audacity to assert that this was achievable.</p>
+    <p>Genesis of ideas from Bob Hallberg</p>
+    <p>had the audacity to assert that this was achievable.</p>
     <p>and fleshed them out with Alistair Adcroft, both at GFDL in Princeton.</p>
     <p>I just came in at the end and implemented them.</p>
   </aside>
@@ -81,10 +94,17 @@
 
 <section id="global-modeling" class="title-slide slide level1">
 <h1>Global Modeling</h1>
-<p><a href="https://dx.doi.org/10.1029/2019MS001726"><video autoplay loop data-src="media/mom6_relvort.mp4" style="width:85.0%" controls=""><a href="media/mom6_relvort.mp4">image</a></video></a></p>
+<figure>
+<video autoplay loop data-src="media/mom6_relvort.mp4" controls=""><a href="media/mom6_relvort.mp4">Video</a></video>
+</figure>
 <aside class="notes">
-<p>Sea surface relative vorticity</p>
+<p>Rather than try to explain what MOM6 is.. better to show what it does:</p>
 <dl>
+<dt>Sea surface relative vorticity</dt>
+<dd><ul>
+<li>A differential rotation of the flow</li>
+</ul>
+</dd>
 <dt>GFDL CM4 model:</dt>
 <dd><ul>
 <li>coupled to MOM6</li>
