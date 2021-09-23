@@ -129,12 +129,13 @@
 </aside>
 </section>
 
+<section>
 <section id="ocean-dynamics" class="title-slide slide level1">
 <h1>Ocean Dynamics</h1>
 <p><img data-src="img/ocn_finite_volume.png" alt="image" /></p>
 <aside class="notes">
 <ul>
-<li><p><em>Very strong</em> parallels to atmosphere dynamics</p>
+<li><p>Strong parallels to atmosphere dynamics</p>
 <ul>
 <li>Ocean is like an "upside down atmosphere"</li>
 </ul></li>
@@ -159,13 +160,6 @@
 </ul>
 </aside>
 </section>
-
-<section>
-<section id="layered-dynamics" class="title-slide slide level1">
-<h1>Layered Dynamics</h1>
-<p><video data-src="media/gold.webm" controls=""><a href="media/gold.webm">image</a></video></p>
-<p>(c/o Adele Morrison, ANU)</p>
-</section>
 <section id="lagrangian-remap" class="slide level2">
 <h2>Lagrangian Remap</h2>
 <p><img data-src="img/lagrange_remap.png" alt="image" /></p>
@@ -174,11 +168,18 @@
 <p>Mention its role in preservation of tracers</p>
 </aside>
 </section></section>
+<section id="turbulent-dynamics" class="title-slide slide level1">
+<h1>Turbulent Dynamics</h1>
+<figure>
+<video data-src="media/pv.mp4" controls=""><a href="media/pv.mp4">Video</a></video>
+</figure>
+</section>
+
 <section id="motivation" class="title-slide slide level1">
 <h1>Motivation</h1>
 <ul>
-<li>Accurate preservation of tracers</li>
 <li>Sustain long simulations over decades, centuries</li>
+<li>Accurate preservation of tracers</li>
 <li>Residual noise can cause chaotic growth</li>
 <li>Operational work needs robust testing</li>
 </ul>
@@ -205,10 +206,12 @@ v-point: ocean_model-v
   mean =  1.2076392816784489E-03  bits = 18606
 h-point: ocean_model-h
   min  =  9.9999999999999915E-04  max  =  5.6265092225099863E+02
-  mean =  3.6490088139048595E+02  bits = 18673</code></pre>
+  mean =  3.6490088139048595E+02  bits = 18673
+...</code></pre>
 <p>Min, max, mean, bit count for every diagnostic</p>
 </section>
 
+<section>
 <section id="verification-testing" class="title-slide slide level1">
 <h1>Verification Testing</h1>
 <p><img data-src="img/mom_verify.svg" style="width:80.0%" alt="image" /></p>
@@ -228,9 +231,8 @@ h-point: ocean_model-h
 </ul>
 </aside>
 </section>
-
-<section id="verification-tests" class="title-slide slide level1">
-<h1>Verification Tests</h1>
+<section id="verification-tests" class="slide level2">
+<h2>Verification Tests</h2>
 <table>
 <thead>
 <tr class="header">
@@ -265,10 +267,13 @@ h-point: ocean_model-h
 </tr>
 </tbody>
 </table>
+<aside class="notes">
+<p>other tests:</p>
+<p>repro: Optimized reproducible mode nan: NaN array initialization</p>
+</aside>
 </section>
-
-<section id="validation-testing" class="title-slide slide level1">
-<h1>Validation Testing</h1>
+<section id="validation-testing" class="slide level2">
+<h2>Validation Testing</h2>
 <p><img data-src="img/mom_validate.svg" alt="image" /></p>
 <aside class="notes">
 <ul>
@@ -278,23 +283,8 @@ h-point: ocean_model-h
 </ul>
 </aside>
 </section>
-
-<section id="production-runs" class="title-slide slide level1">
-<h1>Production Runs</h1>
-<p>Idealized and production configs (incl. publications)</p>
-<ul>
-<li>Ocean-only</li>
-<li>Ocean - Sea Ice</li>
-<li>Coupled (Atmosphere - Sea Ice - Ocean)</li>
-</ul>
-<p>Final Evaluation:</p>
-<ul>
-<li>Active GFDL development models</li>
-</ul>
-</section>
-
-<section id="external-testing" class="title-slide slide level1">
-<h1>External Testing</h1>
+<section id="community-validation" class="slide level2">
+<h2>Community Validation</h2>
 <p><img data-src="img/gitrepos.svg" style="width:50.0%" alt="image" /></p>
 <aside class="notes">
 <p>Merge to the <code>main</code> branch:</p>
@@ -303,27 +293,7 @@ h-point: ocean_model-h
 <p>Any regressions are resolved collaboratively</p>
 <p>We also have bi-weekly meetings and keep in touch regularly</p>
 </aside>
-</section>
-
-<section id="testing-summary" class="title-slide slide level1">
-<h1>Testing Summary</h1>
-<ul>
-<li>Automated Verification Tests
-<ul>
-<li>Small, designed to run on any system</li>
-</ul></li>
-<li>Regression Testing
-<ul>
-<li>61 tests, up to 500 cores, specialized facility</li>
-</ul></li>
-<li>Internal validation
-<ul>
-<li>Active production runs</li>
-</ul></li>
-<li>Cross-site review</li>
-</ul>
-</section>
-
+</section></section>
 <section id="floating-point-review" class="title-slide slide level1">
 <h1>Floating Point Review</h1>
 <p><a href="https://commons.wikimedia.org/wiki/File:Float_example.svg"><img data-src="img/ieee_float_fmt.svg" alt="image" /></a></p>
@@ -409,19 +379,18 @@ x + (y + z)
 gfortran -Ofast ...              # Sets -fno-protect-parens</code></pre>
 <p>Intel Fortran</p>
 <pre class="sh"><code>ifort -assume protect-parens     # Not default</code></pre>
-<p>Note: Fortran requires this!</p>
 <aside class="notes">
-<p>We generally avoid -fp-model style flags</p>
+<p>We try to avoid Intel's -fp-model style flags</p>
 <p>If anyone asks: J3/18-007r1, 10.1.5</p>
 </aside>
 </section></section>
-<section id="parallel-summation" class="title-slide slide level1">
-<h1>Parallel Summation</h1>
-<p>Parentheses work, but can be problematic:</p>
+<section id="global-summation" class="title-slide slide level1">
+<h1>Global Summation</h1>
+<p>Parentheses work, but have cumulant errors:</p>
 <p><span class="math display">\[\sum{\phi} = (\phi_1 + (\phi_2 + ( \phi_3 + ... )))\]</span></p>
-<p>We recommend fixed-precision summation:</p>
+<p>Fixed-precision is accurate and independent of order:</p>
 <p><a href="https://doi.org/10.1016/j.parco.2014.04.007"><img data-src="img/fixedprec.svg" alt="image" /></a></p>
-<p>Absolutely <em>NO</em> <code>sum()</code> calls!</p>
+<p>The <code>sum()</code> intrinsic is ambiguous!</p>
 <aside class="notes">
 <p>Parentheses are OK for cumulant sums, but there are problems:</p>
 <ul>
@@ -430,16 +399,21 @@ gfortran -Ofast ...              # Sets -fno-protect-parens</code></pre>
 </ul>
 <p>Cumulant sums over multiple bins resolve these issues.</p>
 <p>Hallberg and Adcroft, 2014: An Order-invariant Real-to-Integer Conversion Sum. Parallel Computing, 40(5-6), <a href="DOI:10.1016/j.parco.2014.04.007">DOI:10.1016/j.parco.2014.04.007</a></p>
+<p>Alistair says:</p>
+<p>Many people are aware that those last digits we write out vary depending on the order of summation. Not so for us which is why we can use it as a metric for detecting regression.</p>
+<p>Bob says:</p>
+<p>With the global reproducing sums, we are able to get identical values to roundoff compared with the single largest value in the sum, rather than roundoff compared with the sum itself. For an ocean model on a 1000x1000 grid, we are routinely able to detect global non-conservation that is larger than about 1 part in 10^20.</p>
 </aside>
 </section>
 
 <section id="transcendentals" class="title-slide slide level1">
 <h1>Transcendentals</h1>
-<p>How is <code>sin(x)</code> computed?</p>
+<p>How is <code>sin(x)</code> computed? Ambiguous!</p>
 <p><span class="math display">\[f(48^\circ) = 2 \Omega \sin \left( \frac{48 \pi}{180} \right)\]</span></p>
 <pre class="mathematica"><code>glibc 2.22: 0.108381727637274115E-03 (3F1C695FE71A3FE4)
       2.26: 0.108381727637274128E-03 (3F1C695FE71A3FE5)</code></pre>
 <p>Other compilers may not even use libm!</p>
+<p>We avoid transcendentals where possible, and manage dependencies when necessary.</p>
 </section>
 
 <section id="higher-order-powers" class="title-slide slide level1">
@@ -457,21 +431,23 @@ z6 = z3 * z3</code></pre>
 </aside>
 </section>
 
-<section>
 <section id="negative-zero" class="title-slide slide level1">
 <h1>Negative Zero</h1>
 <p>Although <code>-0 == 0</code>, bitcounts will differ.</p>
 <p><span class="math display">\[\begin{aligned}
-x \times 0 =
+\phi \times 0 =
 \begin{cases}
-    0 &amp; \text{if $x \leq 0$} \\
-   -0 &amp; \text{if $x &lt; 0$}
+    0 &amp; \text{if $\phi \leq 0$} \\
+   -0 &amp; \text{if $\phi &lt; 0$}
 \end{cases}
 \end{aligned}\]</span></p>
 <p><span class="math inline">\(0 \Leftrightarrow -0\)</span> transitions can detect unexpected values.</p>
-<p>But if all else fails: <code>-0. + 0. == 0.</code></p>
+<p>But if unresolvable, add a zero: <span class="math inline">\(-0 + 0 \Rightarrow +0\)</span>.</p>
+<p>(e.g. <code>min()</code> intrinsic)</p>
 <aside class="notes">
 <p>Challenge of -0: Identical to +0 for all practical purposes.</p>
+<p>Example of "all else fails": MPI_min/max is not consistent with 754 rules.</p>
+<p>See: <a href="https://github.com/NOAA-GFDL/MOM6/pull/1009">https://github.com/NOAA-GFDL/MOM6/pull/1009</a></p>
 <p>But a <code>-0</code> during testing may be a prelude to a more serious problem in production.</p>
 <p>Examples of volatility:</p>
 <ul>
@@ -481,18 +457,18 @@ x \times 0 =
 <p>Issues in halos are not uncommon.</p>
 </aside>
 </section>
-<section id="subroundoff" class="slide level2">
-<h2>Subroundoff</h2>
-<p>Thickness-weighted mean:</p>
-<p><span class="math display">\[\overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i}\]</span></p>
-<p>What if all <span class="math inline">\(h_i = 0\)</span>? Use subroundoff:</p>
-<p><span class="math display">\[\overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i + h_\text{sub}}\]</span></p>
-<p><span class="math inline">\(h_\text{sub}\)</span> is small enough s.t. <span class="math inline">\(h_i + h_{sub} = h_i\)</span>.</p>
-<aside class="notes">
-<p>Not a bit reproducibility method, but relevant to how we manage such calculations.</p>
-<p>I think this relies on throttling of <span class="math inline">\(h_i\)</span> to "angstroms".</p>
-</aside>
-</section></section>
+
+<section id="dimensional-consistency" class="title-slide slide level1">
+<h1>Dimensional Consistency</h1>
+<p>From the seawater equation of state:</p>
+<pre class="fortran"><code>intz(m) = &amp;
+    g_Earth * dz * ((p0 + p_ave) * (I_Lzz * I_al0) - rho_ref_mks) &amp;
+    - 2.0*eps * I_Rho * (lambda * I_al0**2) * eps2 * ( &amp;
+        C1_3 + eps2 * (0.2 + eps2 * (C1_7 + C1_9 * eps2)) &amp;
+    )</code></pre>
+<p>Can we ensure expressions are dimensionally correct?</p>
+</section>
+
 <section id="associative-scaling" class="title-slide slide level1">
 <h1>Associative Scaling</h1>
 <p>Recall the floating point format</p>
@@ -500,6 +476,7 @@ x \times 0 =
    \times (1 + {\color{yellow}\alpha})\]</span></p>
 <p>Power-of-two multiplication is associative</p>
 <p><span class="math display">\[2^N \times \phi \times 2^{-N} \equiv \phi\]</span></p>
+<p>This provides a basis for bitwise dimensional scaling.</p>
 <aside class="notes">
 <p>... up to over/underflow of the exponent</p>
 <ul>
@@ -598,6 +575,36 @@ h_t + h u_x + h v_y &amp;= 0 \\
 </aside>
 </section>
 
+<section id="implementation-1" class="title-slide slide level1">
+<h1>Implementation</h1>
+<p>Input parameters</p>
+<pre class=""><code>call get_param(... , &quot;DT&quot;, ... , scale=US%s_to_T)</code></pre>
+<p>Explicit constants</p>
+<pre class="fortran"><code>eps_vel = 1.0e-10 * US%m_s_to_L_T
+ustar = 0.01 * US%m_to_Z * US%T_to_s</code></pre>
+<p>Diagnostic registration</p>
+<pre class=""><code>call register_diag_field(..., &quot;u&quot;, ... , conversion=US%L_T_to_m_s)</code></pre>
+<p>"US" contains user-defined power-of-two rescalings.</p>
+</section>
+
+<section id="rotational-consistency" class="title-slide slide level1">
+<h1>Rotational Consistency</h1>
+<pre class="fortran"><code>PFu(I,j,k) = (((za(i,j)*dp(i,j) + intp_dza(i,j,k)) - &amp;
+    (za(i+1,j)*dp(i+1,j) + intp_dza(i+1,j,k))) + &amp;
+    ((dp(i+1,j) - dp(i,j)) * intx_za(I,j) - &amp;
+    (p(i+1,j,K) - p(i,j,K)) * intx_dza(I,j,k)) ) * &amp;
+    (2.0*G%IdxCu(I,j) / ((dp(i,j) + dp(i+1,j)) + dp_neglect))</code></pre>
+<pre class="fortran"><code>PFv(i,J,k) = (((za(i,j)*dp(i,j) + intp_dza(i,j,k)) - &amp;
+    (za(i,j+1)*dp(i,j+1) + intp_dza(i,j+1,k))) + &amp;
+    ((dp(i,j+1) - dp(i,j)) * inty_za(i,J) - &amp;
+    (p(i,j+1,K) - p(i,j,K)) * inty_dza(i,J,k))) * &amp;
+    (2.0*G%IdyCv(i,J) / ((dp(i,j) + dp(i,j+1)) + dp_neglect))</code></pre>
+<p>Can we ensure consistency of expressions like this?</p>
+<aside class="notes">
+<p>Adcroft et al., 2008, Ocean Modeling, <a href="doi:10.1016/j.ocemod.2008.02.001">doi:10.1016/j.ocemod.2008.02.001</a></p>
+</aside>
+</section>
+
 <section id="horizontal-rotation" class="title-slide slide level1">
 <h1>Horizontal Rotation</h1>
 <p><img data-src="img/rotated_field.png" alt="image" /></p>
@@ -676,26 +683,10 @@ h_t + h u_x + h v_y &amp;= 0 \\
 </tr>
 </tbody>
 </table>
+<p>All quarter-turn rotations are supported.</p>
 <aside class="notes">
 <p>More generally, a rotation is a reverse+transpose of the fields</p>
 </aside>
-</section>
-
-<section id="rotational-consistency" class="title-slide slide level1">
-<h1>Rotational Consistency</h1>
-<pre class="fortran"><code>beta_topo_x = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &amp;
-      (G%bathyT(i+1,j) - G%bathyT(i,j)) * G%IdxCu(I,j) &amp;
-         / max(G%bathyT(i+1,j),G%bathyT(i,j), GV%H_subroundoff) &amp;
-      + (G%bathyT(i,j) - G%bathyT(i-1,j)) * G%IdxCu(I-1,j) &amp;
-         / max(G%bathyT(i,j),G%bathyT(i-1,j), GV%H_subroundoff) &amp;
-)
-beta_topo_y = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &amp;
-      (G%bathyT(i,j+1) - G%bathyT(i,j)) * G%IdyCv(i,J) &amp;
-          / max(G%bathyT(i,j+1), G%bathyT(i,j), GV%H_subroundoff) &amp;
-      + (G%bathyT(i,j) - G%bathyT(i,j-1)) * G%IdyCv(i,J-1) &amp;
-          / max(G%bathyT(i,j), G%bathyT(i,j-1), GV%H_subroundoff) &amp;
-)</code></pre>
-<p>Index rotation ensures directional consistency</p>
 </section>
 
 <section id="invariant-stencils" class="title-slide slide level1">
@@ -717,7 +708,7 @@ beta_topo_y = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &amp;
 </tr>
 <tr class="even">
 <td><img data-src="img/stencil2.svg" alt="image" /></td>
-<td><span class="math inline">\(\frac{1}{4} ( 
+<td><span class="math inline">\(\frac{1}{4} (
      (\color{LightCoral}{\phi_A + \phi_D})
      + (\color{LightSkyBlue}{\phi_B + \phi_C})
 )\)</span></td>
@@ -751,20 +742,37 @@ end subroutine advect_tracer</code></pre>
 </aside>
 </section>
 
-<section id="dimensional-scaling-example" class="title-slide slide level1">
-<h1>Dimensional scaling example</h1>
-<p><a href="https://github.com/NOAA-GFDL/MOM6/pull/921">https://github.com/NOAA-GFDL/MOM6/pull/921</a></p>
+<section id="examples" class="title-slide slide level1">
+<h1>Examples</h1>
+
+</section>
+
+<section id="order-of-operations" class="title-slide slide level1">
+<h1>Order of Operations</h1>
+<p>Kinetic energy calculation:</p>
+<pre class="fortran"><code>tmp1(i,j,k) = &amp;
+  0.25 * KE_scale_factor * (areaTm(i,j) * h(i,j,k))) &amp;
+  * (u(I-1,j,k)**2 + u(I,j,k)**2 + v(i,J-1,k)**2 + v(i,J,k)**2)</code></pre>
+<pre class="fortran"><code>tmp1(i,j,k) = &amp;
+  (0.25 * KE_scale_factor * (areaTm(i,j) * h(i,j,k))) &amp;
+  * ((u(I-1,j,k)**2 + u(I,j,k)**2) + (v(i,J-1,k)**2 + v(i,J,k)**2))</code></pre>
+<p><a href="https://github.com/NOAA-GFDL/MOM6/pull/1216/files">https://github.com/NOAA-GFDL/MOM6/pull/1216/files</a></p>
+</section>
+
+<section id="dimensionality" class="title-slide slide level1">
+<h1>Dimensionality</h1>
+<p>Salinity contribution to diffusivity:</p>
 <pre class="fortran"><code>Kd_lay(i,j,k-1) = Kd_lay(i,j,k-1) + 0.5**KS_extra(i,K)
 Kd_lay(i,j,k)   = Kd_lay(i,j,k)   + 0.5**KS_extra(i,K)</code></pre>
 <p><span class="math inline">\(\ldots + \left(\tfrac{1}{2}\right)^{\kappa_S}\)</span>?</p>
+<p><a href="https://github.com/NOAA-GFDL/MOM6/pull/921">https://github.com/NOAA-GFDL/MOM6/pull/921</a></p>
 <aside class="notes">
 <p>Actually discovered during implementation of the dimensional scaling, rather than detected by the dimensional scaling test. But it's the sort of thing that would have been found...</p>
 </aside>
 </section>
 
-<section id="rotational-example" class="title-slide slide level1">
-<h1>Rotational example</h1>
-<p><a href="https://github.com/NOAA-GFDL/MOM6/pull/1050">https://github.com/NOAA-GFDL/MOM6/pull/1050</a></p>
+<section id="rotational-symmetry" class="title-slide slide level1">
+<h1>Rotational Symmetry</h1>
 <pre class="fortran"><code>subroutine thickness_diffuse_full
    ! ...
 
@@ -774,6 +782,22 @@ Kd_lay(i,j,k)   = Kd_lay(i,j,k)   + 0.5**KS_extra(i,K)</code></pre>
 
    !...
 end subroutine thickness_diffuse_full</code></pre>
+<p><a href="https://github.com/NOAA-GFDL/MOM6/pull/1050">https://github.com/NOAA-GFDL/MOM6/pull/1050</a></p>
+</section>
+
+<section id="cost-of-reproducibility" class="title-slide slide level1">
+<h1>Cost of Reproducibility</h1>
+<ul>
+<li>We forfeit compiler's ability to optimize expressions!
+<ul>
+<li>We are responsible for parentheses placement</li>
+</ul></li>
+<li>Summations are expensive!
+<ul>
+<li>Infrequent operation in our models</li>
+</ul></li>
+</ul>
+<p>In general, we value reproducibility over speed.</p>
 </section>
 
 <section id="summary" class="title-slide slide level1">
@@ -787,11 +811,32 @@ end subroutine thickness_diffuse_full</code></pre>
 </ul></li>
 <li>Methods for bit reproducibility
 <ul>
-<li>Use parentheses for arithmetic operations.</li>
+<li>Use parentheses for arithmetic operations</li>
 <li>Avoid ambiguous intrinsics: <code>sum()</code>, <code>sin()</code>, ...</li>
+<li>Manage transcendentals when possible</li>
 </ul></li>
 </ul>
 </section>
+
+<section>
+<section id="apocrypha" class="title-slide slide level1">
+<h1>Apocrypha</h1>
+<aside class="notes">
+<p>Random topics related to FPE but not reproducibility.</p>
+</aside>
+</section>
+<section id="subroundoff" class="slide level2">
+<h2>Subroundoff</h2>
+<p>Thickness-weighted mean:</p>
+<p><span class="math display">\[\overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i}\]</span></p>
+<p>What if all <span class="math inline">\(h_i = 0\)</span>? Use subroundoff:</p>
+<p><span class="math display">\[\overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i + h_\text{sub}}\]</span></p>
+<p><span class="math inline">\(h_\text{sub}\)</span> is small enough s.t. <span class="math inline">\(h_i + h_{sub} = h_i\)</span>.</p>
+<aside class="notes">
+<p>Not a bit reproducibility method, but relevant to how we manage such calculations.</p>
+<p>I think this relies on throttling of <span class="math inline">\(h_i\)</span> to "angstroms".</p>
+</aside>
+</section></section>
     </div>
   </div>
 

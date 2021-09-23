@@ -1,7 +1,3 @@
-.. ===============================================================
-   Bit-reproducible methods for dimensional and rotational testing
-   ===============================================================
-
 ==========================================
 Dimensional and Rotational Testing of MOM6
 ==========================================
@@ -57,21 +53,6 @@ Global Modeling
       - Meridional overturning circulation
 
 
-.. Regional Modeling
-   =================
-
-   .. image:: media/mom6_regional.mp4
-      :width: 90%
-
-   .. notes::
-
-      Say something interesting...
-
-      - Fisheries
-      - Refineries (Gulf of Mexico)
-      - ...?
-
-
 Ocean Dynamics
 ==============
 
@@ -79,7 +60,7 @@ Ocean Dynamics
 
 .. notes::
 
-   - *Very strong* parallels to atmosphere dynamics
+   - Strong parallels to atmosphere dynamics
 
       - Ocean is like an "upside down atmosphere"
 
@@ -108,21 +89,21 @@ Ocean Dynamics
       - Boundary layers in surface, shelf
 
 
-Layered Dynamics
-================
+.. Layered Dynamics
+   ================
 
-.. image:: media/gold.webm
+   .. image:: media/gold.webm
 
-   .. notes::
+      .. notes::
 
-      Idealized study of the southern ocean
+         Idealized study of the southern ocean
 
-      Actually uses an older iteration of the model
+         Actually uses an older iteration of the model
 
-      but illustrates the dynamic layers
+         but illustrates the dynamic layers
 
 
-(c/o Adele Morrison, ANU)
+   (c/o Adele Morrison, ANU)
 
 
 Lagrangian Remap
@@ -137,19 +118,19 @@ Lagrangian Remap
    Mention its role in preservation of tracers
 
 
-.. Chaotic Dynamics
-   ================
+Turbulent Dynamics
+==================
 
-   .. figure:: media/pv.mp4
-      :target: https://www.youtube.com/watch?v=buI6mKzkbs0
+.. figure:: media/pv.mp4
+   :target: https://www.youtube.com/watch?v=buI6mKzkbs0
 
 
 Motivation
 ==========
 
-* Accurate preservation of tracers
-
 * Sustain long simulations over decades, centuries
+
+* Accurate preservation of tracers
 
 * Residual noise can cause chaotic growth
 
@@ -186,6 +167,7 @@ Diagnostic verification
      h-point: ocean_model-h
        min  =  9.9999999999999915E-04  max  =  5.6265092225099863E+02
        mean =  3.6490088139048595E+02  bits = 18673
+     ...
 
 Min, max, mean, bit count for every diagnostic
 
@@ -210,7 +192,7 @@ Verification Testing
 
 
 Verification Tests
-==================
+------------------
 
 ==========  =================================
 Test        Description
@@ -223,14 +205,16 @@ rotation    Index rotation
 openmp      OpenMP (single-thread)
 ==========  =================================
 
-.. removed
+.. notes::
 
-   repro       Optimized reproducible mode
-   nan         NaN array initialization
+   other tests:
+
+   repro:   Optimized reproducible mode
+   nan:     NaN array initialization
 
 
 Validation Testing
-==================
+------------------
 
 .. image:: img/mom_validate.svg
 
@@ -243,24 +227,26 @@ Validation Testing
    - Very strict testing
 
 
-Production Runs
-===============
+.. Testing Summary
+   ===============
 
-Idealized and production configs (incl. publications)
+   * Automated Verification Tests
 
-* Ocean-only
+     - Small, designed to run on any system
 
-* Ocean - Sea Ice
+   * Regression Testing
 
-* Coupled (Atmosphere - Sea Ice - Ocean)
+     - 61 tests, up to 500 cores, specialized facility
 
-Final Evaluation:
+   * Internal validation
 
-* Active GFDL development models
+     - Active production runs
+
+   * Cross-site review
 
 
-External Testing
-================
+Community Validation
+--------------------
 
 .. image:: img/gitrepos.svg
    :width: 50%
@@ -276,24 +262,6 @@ External Testing
    Any regressions are resolved collaboratively
 
    We also have bi-weekly meetings and keep in touch regularly
-
-
-Testing Summary
-===============
-
-* Automated Verification Tests
-
-  - Small, designed to run on any system
-
-* Regression Testing
-
-  - 61 tests, up to 500 cores, specialized facility
-
-* Internal validation
-
-  - Active production runs
-
-* Cross-site review
 
 
 Floating Point Review
@@ -424,33 +392,30 @@ Intel Fortran
 
    ifort -assume protect-parens     # Not default
 
-Note: Fortran requires this!
-
 .. notes::
 
-   We generally avoid -fp-model style flags
+   We try to avoid Intel's -fp-model style flags
 
    If anyone asks: J3/18-007r1, 10.1.5
 
 
-Parallel Summation
-==================
+Global Summation
+================
 
-Parentheses work, but can be problematic:
+Parentheses work, but have cumulant errors:
 
 .. math::
 
    \sum{\phi} = (\phi_1 + (\phi_2 + ( \phi_3 + ... )))
 
-We recommend fixed-precision summation:
+Fixed-precision is accurate and independent of order:
 
 .. image:: img/fixedprec.svg
    :target: https://doi.org/10.1016/j.parco.2014.04.007
 
-Absolutely *NO* ``sum()`` calls!
+The ``sum()`` intrinsic is ambiguous!
 
 .. notes::
-
 
    Parentheses are OK for cumulant sums, but there are problems:
 
@@ -463,11 +428,25 @@ Absolutely *NO* ``sum()`` calls!
    Hallberg and Adcroft, 2014: An Order-invariant Real-to-Integer Conversion
    Sum.  Parallel Computing, 40(5-6), DOI:10.1016/j.parco.2014.04.007
 
+   Alistair says:
+
+   Many people are aware that those last digits we write out vary depending on
+   the order of summation. Not so for us which is why we can use it as a metric
+   for detecting regression.
+
+   Bob says:
+
+   With the global reproducing sums, we are able to get identical values to
+   roundoff compared with the single largest value in the sum, rather than
+   roundoff compared with the sum itself.  For an ocean model on a 1000x1000
+   grid, we are routinely able to detect global non-conservation that is larger
+   than about 1 part in 10^20.
+
 
 Transcendentals
 ===============
 
-How is ``sin(x)`` computed?
+How is ``sin(x)`` computed?  Ambiguous!
 
 .. math::
 
@@ -479,6 +458,10 @@ How is ``sin(x)`` computed?
          2.26: 0.108381727637274128E-03 (3F1C695FE71A3FE5)
 
 Other compilers may not even use libm!
+
+We avoid transcendentals where possible, and manage dependencies when
+necessary.
+
 
 
 Higher order powers
@@ -521,19 +504,25 @@ Although ``-0 == 0``, bitcounts will differ.
 
 .. math::
 
-   x \times 0 =
+   \phi \times 0 =
    \begin{cases}
-       0 & \text{if $x \leq 0$} \\
-      -0 & \text{if $x < 0$}
+       0 & \text{if $\phi \leq 0$} \\
+      -0 & \text{if $\phi < 0$}
    \end{cases}
 
 :math:`0 \Leftrightarrow -0` transitions can detect unexpected values.
 
-But if all else fails: ``-0. + 0. == 0.``
+But if unresolvable, add a zero: :math:`-0 + 0 \Rightarrow +0`.
+
+(e.g. ``min()`` intrinsic)
 
 .. notes::
 
    Challenge of -0: Identical to +0 for all practical purposes.
+
+   Example of "all else fails": MPI_min/max is not consistent with 754 rules.
+
+   See: https://github.com/NOAA-GFDL/MOM6/pull/1009
 
    But a ``-0`` during testing may be a prelude to a more serious problem in
    production.
@@ -547,29 +536,20 @@ But if all else fails: ``-0. + 0. == 0.``
    Issues in halos are not uncommon.
 
 
-Subroundoff
------------
+Dimensional Consistency
+=======================
 
-Thickness-weighted mean:
+From the seawater equation of state:
 
-.. math::
+.. code:: fortran
 
-   \overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i}
+   intz(m) = &
+       g_Earth * dz * ((p0 + p_ave) * (I_Lzz * I_al0) - rho_ref_mks) &
+       - 2.0*eps * I_Rho * (lambda * I_al0**2) * eps2 * ( &
+           C1_3 + eps2 * (0.2 + eps2 * (C1_7 + C1_9 * eps2)) &
+       )
 
-What if all :math:`h_i = 0`?  Use subroundoff:
-
-.. math::
-
-   \overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i + h_\text{sub}}
-
-:math:`h_\text{sub}` is small enough s.t. :math:`h_i + h_{sub} = h_i`.
-
-.. notes::
-
-   Not a bit reproducibility method, but relevant to how we manage such
-   calculations.
-
-   I think this relies on throttling of :math:`h_i` to "angstroms".
+Can we ensure expressions are dimensionally correct?
 
 
 Associative Scaling
@@ -587,6 +567,8 @@ Power-of-two multiplication is associative
 .. math::
 
    2^N \times \phi \times 2^{-N} \equiv \phi
+
+This provides a basis for bitwise dimensional scaling.
 
 .. notes::
 
@@ -654,6 +636,57 @@ J/kg  Q        Enthalpy
    The currently tracked units are shown in this table.
 
    Salinity is a potential scaling
+
+
+Implementation
+==============
+
+Input parameters
+
+.. code::
+
+   call get_param(... , "DT", ... , scale=US%s_to_T)
+
+Explicit constants
+
+.. code:: fortran
+
+   eps_vel = 1.0e-10 * US%m_s_to_L_T
+   ustar = 0.01 * US%m_to_Z * US%T_to_s
+
+Diagnostic registration
+
+.. code::
+
+   call register_diag_field(..., "u", ... , conversion=US%L_T_to_m_s)
+
+"US" contains user-defined power-of-two rescalings.
+
+
+Rotational Consistency
+======================
+
+.. code:: fortran
+
+   PFu(I,j,k) = (((za(i,j)*dp(i,j) + intp_dza(i,j,k)) - &
+       (za(i+1,j)*dp(i+1,j) + intp_dza(i+1,j,k))) + &
+       ((dp(i+1,j) - dp(i,j)) * intx_za(I,j) - &
+       (p(i+1,j,K) - p(i,j,K)) * intx_dza(I,j,k)) ) * &
+       (2.0*G%IdxCu(I,j) / ((dp(i,j) + dp(i+1,j)) + dp_neglect))
+
+.. code:: fortran
+
+   PFv(i,J,k) = (((za(i,j)*dp(i,j) + intp_dza(i,j,k)) - &
+       (za(i,j+1)*dp(i,j+1) + intp_dza(i,j+1,k))) + &
+       ((dp(i,j+1) - dp(i,j)) * inty_za(i,J) - &
+       (p(i,j+1,K) - p(i,j,K)) * inty_dza(i,J,k))) * &
+       (2.0*G%IdyCv(i,J) / ((dp(i,j) + dp(i,j+1)) + dp_neglect))
+
+Can we ensure consistency of expressions like this?
+
+.. notes::
+
+   Adcroft et al., 2008, Ocean Modeling, doi:10.1016/j.ocemod.2008.02.001
 
 
 Horizontal Rotation
@@ -741,30 +774,11 @@ For 90° rotations:
      * - :math:`u(I, J) =  v(j, N-i)`
        - :math:`v(I, J) = -u(j, N-i)`
 
+All quarter-turn rotations are supported.
+
 .. notes::
 
    More generally, a rotation is a reverse+transpose of the fields
-
-
-Rotational Consistency
-======================
-
-.. code:: fortran
-
-   beta_topo_x = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &
-         (G%bathyT(i+1,j) - G%bathyT(i,j)) * G%IdxCu(I,j) &
-            / max(G%bathyT(i+1,j),G%bathyT(i,j), GV%H_subroundoff) &
-         + (G%bathyT(i,j) - G%bathyT(i-1,j)) * G%IdxCu(I-1,j) &
-            / max(G%bathyT(i,j),G%bathyT(i-1,j), GV%H_subroundoff) &
-   )
-   beta_topo_y = -CS%MEKE_topographic_beta * FatH * 0.5 * ( &
-         (G%bathyT(i,j+1) - G%bathyT(i,j)) * G%IdyCv(i,J) &
-             / max(G%bathyT(i,j+1), G%bathyT(i,j), GV%H_subroundoff) &
-         + (G%bathyT(i,j) - G%bathyT(i,j-1)) * G%IdyCv(i,J-1) &
-             / max(G%bathyT(i,j), G%bathyT(i,j-1), GV%H_subroundoff) &
-   )
-
-Index rotation ensures directional consistency
 
 
 Invariant stencils
@@ -835,10 +849,34 @@ When all else fails, reorder the algorithm.
    control.
 
 
-Dimensional scaling example
-===========================
+Examples
+========
 
-https://github.com/NOAA-GFDL/MOM6/pull/921
+
+Order of Operations
+===================
+
+Kinetic energy calculation:
+
+.. code:: fortran
+
+   tmp1(i,j,k) = &
+     0.25 * KE_scale_factor * (areaTm(i,j) * h(i,j,k))) &
+     * (u(I-1,j,k)**2 + u(I,j,k)**2 + v(i,J-1,k)**2 + v(i,J,k)**2)
+
+.. code:: fortran
+
+   tmp1(i,j,k) = &
+     (0.25 * KE_scale_factor * (areaTm(i,j) * h(i,j,k))) &
+     * ((u(I-1,j,k)**2 + u(I,j,k)**2) + (v(i,J-1,k)**2 + v(i,J,k)**2))
+
+https://github.com/NOAA-GFDL/MOM6/pull/1216/files
+
+
+Dimensionality
+==============
+
+Salinity contribution to diffusivity:
 
 .. code:: fortran
 
@@ -847,6 +885,8 @@ https://github.com/NOAA-GFDL/MOM6/pull/921
 
 :math:`\ldots + \left(\tfrac{1}{2}\right)^{\kappa_S}`?
 
+https://github.com/NOAA-GFDL/MOM6/pull/921
+
 .. notes::
 
    Actually discovered during implementation of the dimensional scaling, rather
@@ -854,10 +894,8 @@ https://github.com/NOAA-GFDL/MOM6/pull/921
    that would have been found...
 
 
-Rotational example
-==================
-
-https://github.com/NOAA-GFDL/MOM6/pull/1050
+Rotational Symmetry
+===================
 
 .. code:: fortran
 
@@ -871,6 +909,21 @@ https://github.com/NOAA-GFDL/MOM6/pull/1050
       !...
    end subroutine thickness_diffuse_full
 
+https://github.com/NOAA-GFDL/MOM6/pull/1050
+
+
+Cost of Reproducibility
+=======================
+
+- We forfeit compiler's ability to optimize expressions!
+
+  - We are responsible for parentheses placement
+
+- Summations are expensive!
+
+  - Infrequent operation in our models
+
+In general, we value reproducibility over speed.
 
 
 Summary
@@ -886,7 +939,43 @@ Summary
 
 * Methods for bit reproducibility
 
-  - Use parentheses for arithmetic operations.
+  - Use parentheses for arithmetic operations
 
   - Avoid ambiguous intrinsics: ``sum()``, ``sin()``, ...
+
+  - Manage transcendentals when possible
+
+
+Apocrypha
+=========
+
+.. notes::
+
+   Random topics related to FPE but not reproducibility.
+
+
+Subroundoff
+-----------
+
+Thickness-weighted mean:
+
+.. math::
+
+   \overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i}
+
+What if all :math:`h_i = 0`?  Use subroundoff:
+
+.. math::
+
+   \overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i + h_\text{sub}}
+
+:math:`h_\text{sub}` is small enough s.t. :math:`h_i + h_{sub} = h_i`.
+
+.. notes::
+
+   Not a bit reproducibility method, but relevant to how we manage such
+   calculations.
+
+   I think this relies on throttling of :math:`h_i` to "angstroms".
+
 
