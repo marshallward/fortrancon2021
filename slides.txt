@@ -909,7 +909,7 @@ Cost of Reproducibility
 
 - Summations are expensive!
 
-  - Infrequent operation in our models
+  - This is an infrequent operation in our model
 
 In general, we value reproducibility over speed.
 
@@ -919,12 +919,6 @@ Summary
 
 * Bit reproducibility is essential, and achievable!
 
-* Enables aggressive regression testing
-
-  - Dimensional consistency
-
-  - Rotationally symmetric solvers
-
 * Methods for bit reproducibility
 
   - Use parentheses for arithmetic operations
@@ -933,37 +927,8 @@ Summary
 
   - Manage transcendentals when possible
 
+* Enables aggressive regression testing
 
-Apocrypha
-=========
+  - Dimensional consistency
 
-.. notes::
-
-   Random topics related to FPE but not reproducibility.
-
-
-Subroundoff
------------
-
-Thickness-weighted mean:
-
-.. math::
-
-   \overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i}
-
-What if all :math:`h_i = 0`?  Use subroundoff:
-
-.. math::
-
-   \overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i + h_\text{sub}}
-
-:math:`h_\text{sub}` is small enough s.t. :math:`h_i + h_{sub} = h_i`.
-
-.. notes::
-
-   Not a bit reproducibility method, but relevant to how we manage such
-   calculations.
-
-   I think this relies on throttling of :math:`h_i` to "angstroms".
-
-
+  - Rotationally symmetric solvers

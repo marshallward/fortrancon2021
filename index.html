@@ -786,7 +786,7 @@ end subroutine thickness_diffuse_full</code></pre>
 </ul></li>
 <li>Summations are expensive!
 <ul>
-<li>Infrequent operation in our models</li>
+<li>This is an infrequent operation in our model</li>
 </ul></li>
 </ul>
 <p>In general, we value reproducibility over speed.</p>
@@ -796,39 +796,19 @@ end subroutine thickness_diffuse_full</code></pre>
 <h1>Summary</h1>
 <ul>
 <li>Bit reproducibility is essential, and achievable!</li>
-<li>Enables aggressive regression testing
-<ul>
-<li>Dimensional consistency</li>
-<li>Rotationally symmetric solvers</li>
-</ul></li>
 <li>Methods for bit reproducibility
 <ul>
 <li>Use parentheses for arithmetic operations</li>
 <li>Avoid ambiguous intrinsics: <code>sum()</code>, <code>sin()</code>, ...</li>
 <li>Manage transcendentals when possible</li>
 </ul></li>
+<li>Enables aggressive regression testing
+<ul>
+<li>Dimensional consistency</li>
+<li>Rotationally symmetric solvers</li>
+</ul></li>
 </ul>
 </section>
-
-<section>
-<section id="apocrypha" class="title-slide slide level1">
-<h1>Apocrypha</h1>
-<aside class="notes">
-<p>Random topics related to FPE but not reproducibility.</p>
-</aside>
-</section>
-<section id="subroundoff" class="slide level2">
-<h2>Subroundoff</h2>
-<p>Thickness-weighted mean:</p>
-<p><span class="math display">\[\overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i}\]</span></p>
-<p>What if all <span class="math inline">\(h_i = 0\)</span>? Use subroundoff:</p>
-<p><span class="math display">\[\overline{\phi} = \frac{\sum \phi_i h_i}{\sum h_i + h_\text{sub}}\]</span></p>
-<p><span class="math inline">\(h_\text{sub}\)</span> is small enough s.t. <span class="math inline">\(h_i + h_{sub} = h_i\)</span>.</p>
-<aside class="notes">
-<p>Not a bit reproducibility method, but relevant to how we manage such calculations.</p>
-<p>I think this relies on throttling of <span class="math inline">\(h_i\)</span> to "angstroms".</p>
-</aside>
-</section></section>
     </div>
   </div>
 
