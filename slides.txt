@@ -495,7 +495,7 @@ We recommend::
 Negative Zero
 =============
 
-Although ``-0 == 0``, bitcounts will differ.
+Although :math:`-0 = 0`, bit count will differ.
 
 .. math::
 
@@ -783,7 +783,7 @@ Invariant stencils
 
 .. image:: img/stencil.svg
    :class: float
-   :width: 25%
+   :width: 22%
 
 .. list-table::
 
