@@ -50,9 +50,10 @@ Global Modeling
       - A differential rotation of the flow
 
    GFDL CM4 model:
+      - Principal coupled climate model
       - coupled to MOM6
 
-   Phenomena on this model:
+   Phenomena on display:
       - Equatorial Waves
          - Large, very fast
          - shelf-reflecting => ENSO
@@ -76,6 +77,10 @@ Ocean Dynamics
 .. image:: img/ocn_finite_volume.png
 
 .. notes::
+
+   Very briefly:
+
+   - MOM6 is a finite volume ocean model
 
    - Strong parallels to atmosphere dynamics
 
@@ -128,6 +133,29 @@ Turbulent Dynamics
 
 .. figure:: media/pv.webm
    :target: https://www.youtube.com/watch?v=buI6mKzkbs0
+
+.. notes::
+
+   Within those phenomena:
+
+   A profoundly turbulent flow
+
+   And one that is quasi-2D, which has the unique property of pushing energy
+   from small to large length scales
+
+   And On top of the usual chaotic dynamics
+
+   As a result:
+      - Enormously sensitive to small differences in values
+      - Even LSB changes can produce very different eddy fields
+
+   We assert (assume?) that that statistical features of such flows are
+   resilient
+
+   the other video shows that they are at least persistent.
+
+   But demonstrates that bit reproducibility is vital to replicating prior
+   results.
 
 
 Motivation
@@ -515,7 +543,7 @@ Although :math:`-0 = 0`, bit count will differ.
 
    \phi \times 0 =
    \begin{cases}
-       0 & \text{if $\phi \leq 0$} \\
+       0 & \text{if $\phi \geq 0$} \\
       -0 & \text{if $\phi < 0$}
    \end{cases}
 
@@ -809,7 +837,7 @@ Invariant stencils
        )`
 
        :math:`\frac{1}{4} (
-            (\color{LightCoral}{\phi_A} + \color{LightSkyBlue}{\phi_D})
+            (\color{LightCoral}{\phi_A} + \color{LightSkyBlue}{\phi_C})
             + (\color{LightCoral}{\phi_B} + \color{LightSkyBlue}{\phi_D})
        )`
 

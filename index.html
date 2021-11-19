@@ -107,10 +107,11 @@
 </dd>
 <dt>GFDL CM4 model:</dt>
 <dd><ul>
+<li>Principal coupled climate model</li>
 <li>coupled to MOM6</li>
 </ul>
 </dd>
-<dt>Phenomena on this model:</dt>
+<dt>Phenomena on display:</dt>
 <dd><ul>
 <li><dl>
 <dt>Equatorial Waves</dt>
@@ -154,7 +155,9 @@
 <h1>Ocean Dynamics</h1>
 <p><img data-src="img/ocn_finite_volume.png" alt="image" /></p>
 <aside class="notes">
+<p>Very briefly:</p>
 <ul>
+<li><p>MOM6 is a finite volume ocean model</p></li>
 <li><p>Strong parallels to atmosphere dynamics</p>
 <ul>
 <li>Ocean is like an "upside down atmosphere"</li>
@@ -186,6 +189,23 @@
 <figure>
 <video autoplay loop data-src="media/pv.webm" controls=""><a href="media/pv.webm">Video</a></video>
 </figure>
+<aside class="notes">
+<p>Within those phenomena:</p>
+<p>A profoundly turbulent flow</p>
+<p>And one that is quasi-2D, which has the unique property of pushing energy from small to large length scales</p>
+<p>And On top of the usual chaotic dynamics</p>
+<dl>
+<dt>As a result:</dt>
+<dd><ul>
+<li>Enormously sensitive to small differences in values</li>
+<li>Even LSB changes can produce very different eddy fields</li>
+</ul>
+</dd>
+</dl>
+<p>We assert (assume?) that that statistical features of such flows are resilient</p>
+<p>the other video shows that they are at least persistent.</p>
+<p>But demonstrates that bit reproducibility is vital to replicating prior results.</p>
+</aside>
 </section>
 
 <section id="motivation" class="title-slide slide level1">
@@ -450,7 +470,7 @@ z6 = z3 * z3</code></pre>
 <p><span class="math display">\[\begin{aligned}
 \phi \times 0 =
 \begin{cases}
-    0 &amp; \text{if $\phi \leq 0$} \\
+    0 &amp; \text{if $\phi \geq 0$} \\
    -0 &amp; \text{if $\phi &lt; 0$}
 \end{cases}
 \end{aligned}\]</span></p>
@@ -715,7 +735,7 @@ ustar = 0.01 * US%m_to_Z * US%T_to_s</code></pre>
      + (\color{LightSkyBlue}{\phi_C} + \color{LightSkyBlue}{\phi_D})
 )\)</span></p>
 <p><span class="math inline">\(\frac{1}{4} (
-     (\color{LightCoral}{\phi_A} + \color{LightSkyBlue}{\phi_D})
+     (\color{LightCoral}{\phi_A} + \color{LightSkyBlue}{\phi_C})
      + (\color{LightCoral}{\phi_B} + \color{LightSkyBlue}{\phi_D})
 )\)</span></p></td>
 </tr>
